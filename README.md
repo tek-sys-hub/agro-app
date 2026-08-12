@@ -1,26 +1,24 @@
 # 🌱 Agro App
 
-A Flutter-based smart farming companion that brings AI-powered crop diagnostics, live market prices, weather and field-sensor data, and a farmer community together in one app.
+A Flutter-based smart farming assistant that helps farmers detect crop diseases with AI, track live market prices, monitor field conditions, and connect with a farming community — all in one app.
 
 ![Flutter](https://img.shields.io/badge/Flutter-3.x-02569B?logo=flutter&logoColor=white)
 ![Dart](https://img.shields.io/badge/Dart-3.12-0175C2?logo=dart&logoColor=white)
 ![Platform](https://img.shields.io/badge/Platform-Android%20%7C%20iOS%20%7C%20Web-lightgrey)
-![Status](https://img.shields.io/badge/Status-UI%20Design%20%2F%20Early%20Development-orange)
+![Status](https://img.shields.io/badge/Status-Prototype-brightgreen)
 
 ## Overview
 
-Agro App is designed to help farmers make faster, smarter decisions — from spotting a crop disease early to knowing the best market to sell at. The app combines an AI scan/chat assistant, real-time market insights, field sensor monitoring, and a community feed into a single mobile-first experience.
+Agro App gives farmers a single place to manage their farming decisions — scan a plant to detect disease, check today's market prices, monitor field sensors, chat with an AI assistant, and stay connected with the farming community.
 
-> **Project status:** The UI/UX has been fully designed (see mockups below) and the Flutter project is scaffolded. Screen implementation is in progress — contributions are welcome!
+## ✨ Features
 
-## ✨ Planned Features
-
-- 🤖 **Agro AI Assistant** — Ask questions and get smart crop recommendations via chat
-- 📷 **AI Scan** — Take or upload a photo to detect plant diseases, pests, and get treatment advice
-- 📈 **Market Prices** — Live crop prices, trends, and AI-driven market insights
-- 🌤️ **Weather & Field Sensors** — Local weather plus humidity/temperature readings from connected sensors
+- 🤖 **Agro AI Assistant** — Chat-based assistant for crop recommendations and farming advice
+- 📷 **AI Scan** — Take or upload a photo to detect plant diseases and pests, with treatment suggestions
+- 📈 **Market Prices** — Live crop prices, price trends, and market insights
+- 🌤️ **Weather & Field Sensors** — Local weather plus humidity/temperature readings
 - 👥 **Community Feed** — Farmers share tips, photos, and advice
-- 🛒 **B2B Marketplace** — Connect farmers with buyers/suppliers
+- 🛒 **B2B Marketplace** — Connect farmers with buyers and suppliers
 - 🔔 **Notifications** — Alerts for prices, weather, and sensor status
 - 👤 **Profile & My Farm** — Manage farm details, scan history, and account info
 
@@ -55,7 +53,6 @@ Agro App is designed to help farmers make faster, smarter decisions — from spo
 
 - **Framework:** [Flutter](https://flutter.dev/) (Dart SDK `^3.12.2`)
 - **Platforms:** Android, iOS, Web
-- **Linting:** `flutter_lints`
 
 ## 🚀 Getting Started
 
@@ -98,15 +95,6 @@ agro_app/
 ├── test/              # Widget/unit tests
 └── pubspec.yaml       # Project dependencies & metadata
 ```
-
-## 🧭 Roadmap
-
-- [ ] Implement navigation shell (Home, Market, AI Scan/Chat, My Farm, Profile)
-- [ ] Integrate AI model/API for disease & pest detection
-- [ ] Connect live market price data source
-- [ ] Wire up authentication (login/signup)
-- [ ] Field sensor data integration
-- [ ] Community feed & B2B marketplace backend
 
 ## 🤝 Contributing
 
