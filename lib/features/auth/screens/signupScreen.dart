@@ -25,6 +25,14 @@ class _SignupScreenState extends State<SignupScreen> {
   bool _isGoogleLoading = false;
 
   @override
+  void initState() {
+    super.initState();
+    _passwordController.addListener(() {
+      setState(() {});
+    });
+  }
+
+  @override
   void dispose() {
     _nameController.dispose();
     _emailController.dispose();
@@ -241,7 +249,7 @@ class _SignupScreenState extends State<SignupScreen> {
                   controller: _passwordController,
                   prefixIcon: Icons.lock_outline_rounded,
                   isPassword: true,
-                  helperText: 'Min. 8 characters with letters and numbers',
+                  helperText: 'Min. 8 chars with uppercase, number & symbol',
                   validator: (val) {
                     if (val == null || val.isEmpty) {
                       return 'Please enter a password';
@@ -249,8 +257,45 @@ class _SignupScreenState extends State<SignupScreen> {
                     if (val.length < 8) {
                       return 'Password must be at least 8 characters';
                     }
+                    if (!RegExp(r'[A-Z]').hasMatch(val)) {
+                      return 'Password must contain at least one capital letter';
+                    }
+                    if (!RegExp(r'[0-9]').hasMatch(val)) {
+                      return 'Password must contain at least one number';
+                    }
+                    if (!RegExp(r'[!@#$%^&*(),.?":{}|<>\-_]').hasMatch(val)) {
+                      return 'Password must contain at least one symbol';
+                    }
                     return null;
                   },
+                ),
+                const SizedBox(height: 6),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 4),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      _buildPasswordRequirementRow(
+                        'At least 8 characters',
+                        _passwordController.text.length >= 8,
+                      ),
+                      const SizedBox(height: 4),
+                      _buildPasswordRequirementRow(
+                        'Contains a capital letter',
+                        RegExp(r'[A-Z]').hasMatch(_passwordController.text),
+                      ),
+                      const SizedBox(height: 4),
+                      _buildPasswordRequirementRow(
+                        'Contains a number',
+                        RegExp(r'[0-9]').hasMatch(_passwordController.text),
+                      ),
+                      const SizedBox(height: 4),
+                      _buildPasswordRequirementRow(
+                        'Contains a symbol',
+                        RegExp(r'[!@#$%^&*(),.?":{}|<>\-_]').hasMatch(_passwordController.text),
+                      ),
+                    ],
+                  ),
                 ),
 
                 const SizedBox(height: 14),
@@ -396,6 +441,27 @@ class _SignupScreenState extends State<SignupScreen> {
           ),
         ),
       ),
+    );
+  }
+
+  Widget _buildPasswordRequirementRow(String text, bool isMet) {
+    return Row(
+      children: [
+        Icon(
+          isMet ? Icons.check_circle_rounded : Icons.radio_button_unchecked_rounded,
+          size: 14,
+          color: isMet ? AppColors.primary : AppColors.textMuted,
+        ),
+        const SizedBox(width: 6),
+        Text(
+          text,
+          style: TextStyle(
+            fontSize: 12,
+            color: isMet ? AppColors.textPrimary : AppColors.textSecondary,
+            fontWeight: isMet ? FontWeight.w600 : FontWeight.normal,
+          ),
+        ),
+      ],
     );
   }
 }

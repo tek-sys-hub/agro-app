@@ -86,7 +86,7 @@ void main() {
       // Email
       await tester.enterText(textFields.at(1), 'saugat@agrosmart.np');
       // Password
-      await tester.enterText(textFields.at(2), 'password123');
+      await tester.enterText(textFields.at(2), 'Password123!');
       // Confirm Password (mismatch)
       await tester.enterText(textFields.at(3), 'differentPass');
 
@@ -95,6 +95,35 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.text('Passwords do not match'), findsOneWidget);
+    });
+
+    testWidgets('SignupScreen validates password length and symbol requirements', (WidgetTester tester) async {
+      tester.view.physicalSize = const Size(1080, 2400);
+      tester.view.devicePixelRatio = 2.0;
+      addTearDown(tester.view.resetPhysicalSize);
+
+      await tester.pumpWidget(
+        MaterialApp(
+          theme: AppTheme.lightTheme,
+          home: const SignupScreen(),
+        ),
+      );
+
+      final textFields = find.byType(TextFormField);
+      // Name
+      await tester.enterText(textFields.at(0), 'Saugat Sharma');
+      // Email
+      await tester.enterText(textFields.at(1), 'saugat@agrosmart.np');
+      // Password too short (<8 chars)
+      await tester.enterText(textFields.at(2), 'short');
+      // Confirm Password
+      await tester.enterText(textFields.at(3), 'short');
+
+      final signUpButton = find.widgetWithText(ElevatedButton, 'Sign Up');
+      await tester.tap(signUpButton);
+      await tester.pumpAndSettle();
+
+      expect(find.text('Password must be at least 8 characters'), findsOneWidget);
     });
   });
 }
