@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
-import '../../core/theme/appColors.dart';
-import '../../core/widgets/metricBadge.dart';
+import '../../../core/theme/appColors.dart';
+import '../../../core/widgets/metricBadge.dart';
+import '../../../core/widgets/smoothPageRoute.dart';
+import '../../notifications/screens/notificationScreen.dart';
+import '../widgets/b2bTrustBadges.dart';
 import 'createContractScreen.dart';
-import '../notifications/notificationScreen.dart';
 
 class B2bMarketplaceScreen extends StatefulWidget {
   const B2bMarketplaceScreen({super.key});
@@ -32,20 +34,23 @@ class _B2bMarketplaceScreenState extends State<B2bMarketplaceScreen> {
           IconButton(
             icon: const Icon(Icons.search_rounded),
             color: AppColors.textPrimary,
+            splashRadius: 20,
             onPressed: () {},
           ),
           IconButton(
             icon: const Icon(Icons.notifications_none_rounded),
             color: AppColors.textPrimary,
+            splashRadius: 20,
             onPressed: () {
               Navigator.of(context).push(
-                MaterialPageRoute(builder: (_) => const NotificationScreen()),
+                SmoothPageRoute(page: const NotificationScreen()),
               );
             },
           ),
         ],
       ),
       body: SingleChildScrollView(
+        physics: const BouncingScrollPhysics(),
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -54,8 +59,8 @@ class _B2bMarketplaceScreenState extends State<B2bMarketplaceScreen> {
             _buildHeroBanner(context),
             const SizedBox(height: 16),
 
-            // 4 Trust Badges
-            _buildTrustBadges(),
+            // 4 Trust Badges Widget
+            const B2bTrustBadges(),
             const SizedBox(height: 16),
 
             // Segmented Tabs
@@ -101,35 +106,31 @@ class _B2bMarketplaceScreenState extends State<B2bMarketplaceScreen> {
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Expanded(
+              Container(
+                width: 44,
+                height: 44,
+                decoration: const BoxDecoration(
+                  color: AppColors.primary,
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(Icons.handshake_rounded, color: Colors.white, size: 22),
+              ),
+              const SizedBox(width: 12),
+              const Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
-                  children: const [
+                  children: [
                     Text(
-                      'Smart sourcing for your business',
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w800,
-                        color: AppColors.textPrimary,
-                        height: 1.2,
-                      ),
+                      'Direct Farm-to-Business Trade',
+                      style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700, color: AppColors.textPrimary),
                     ),
-                    SizedBox(height: 6),
+                    SizedBox(height: 4),
                     Text(
-                      'Connect with trusted farmers & suppliers and get the best deals.',
-                      style: TextStyle(fontSize: 11, color: AppColors.textSecondary),
+                      'Connect directly with bulk buyers, food processors, and verified suppliers across Nepal.',
+                      style: TextStyle(fontSize: 11, color: AppColors.textSecondary, height: 1.35),
                     ),
                   ],
                 ),
-              ),
-              Container(
-                width: 50,
-                height: 50,
-                decoration: const BoxDecoration(
-                  color: Colors.white,
-                  shape: BoxShape.circle,
-                ),
-                child: const Icon(Icons.handshake_rounded, color: AppColors.primary, size: 28),
               ),
             ],
           ),
@@ -139,75 +140,35 @@ class _B2bMarketplaceScreenState extends State<B2bMarketplaceScreen> {
               ElevatedButton.icon(
                 onPressed: () {
                   Navigator.of(context).push(
-                    MaterialPageRoute(builder: (_) => const CreateContractScreen()),
+                    SmoothPageRoute(page: const CreateContractScreen()),
                   );
                 },
-                icon: const Icon(Icons.assignment_add, size: 14, color: Colors.white),
-                label: const Text('Post a Requirement', style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: Colors.white)),
+                icon: const Icon(Icons.add_rounded, size: 16, color: Colors.white),
+                label: const Text('Create Contract', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w700, fontSize: 12)),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.primary,
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
                   minimumSize: Size.zero,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                  elevation: 0,
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
                 ),
               ),
-              const SizedBox(width: 8),
-              OutlinedButton.icon(
+              const SizedBox(width: 10),
+              OutlinedButton(
                 onPressed: () {},
-                icon: const Icon(Icons.play_circle_outline_rounded, size: 14, color: AppColors.primary),
-                label: const Text('How it works', style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: AppColors.primary)),
                 style: OutlinedButton.styleFrom(
+                  foregroundColor: AppColors.primary,
                   side: const BorderSide(color: AppColors.primary),
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
                   minimumSize: Size.zero,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
                 ),
+                child: const Text('Post Requirement', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 12)),
               ),
             ],
           ),
         ],
       ),
-    );
-  }
-
-  Widget _buildTrustBadges() {
-    final badges = [
-      {'title': 'Verified Vendors', 'sub': 'KYC & quality checked', 'icon': Icons.verified_user_outlined},
-      {'title': 'Secure Contracts', 'sub': 'Transparent terms', 'icon': Icons.description_outlined},
-      {'title': 'Reliable Delivery', 'sub': 'On-time, every time', 'icon': Icons.local_shipping_outlined},
-      {'title': 'Dedicated Support', 'sub': 'We are here to help', 'icon': Icons.support_agent_outlined},
-    ];
-
-    return Row(
-      children: badges.map((b) {
-        return Expanded(
-          child: Container(
-            margin: const EdgeInsets.symmetric(horizontal: 2),
-            padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(10),
-              border: Border.all(color: AppColors.border),
-            ),
-            child: Column(
-              children: [
-                Icon(b['icon'] as IconData, color: AppColors.primary, size: 18),
-                const SizedBox(height: 4),
-                Text(
-                  b['title'] as String,
-                  textAlign: TextAlign.center,
-                  style: const TextStyle(fontSize: 9, fontWeight: FontWeight.w700, color: AppColors.textPrimary),
-                ),
-                Text(
-                  b['sub'] as String,
-                  textAlign: TextAlign.center,
-                  style: const TextStyle(fontSize: 7.5, color: AppColors.textMuted),
-                ),
-              ],
-            ),
-          ),
-        );
-      }).toList(),
     );
   }
 
@@ -254,6 +215,7 @@ class _B2bMarketplaceScreenState extends State<B2bMarketplaceScreen> {
     return SizedBox(
       height: 34,
       child: ListView.separated(
+        physics: const BouncingScrollPhysics(),
         scrollDirection: Axis.horizontal,
         itemCount: _productCategories.length + 1,
         separatorBuilder: (context, index) => const SizedBox(width: 8),
@@ -376,9 +338,9 @@ class _B2bMarketplaceScreenState extends State<B2bMarketplaceScreen> {
               children: [
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    const MetricBadge(text: 'Verified', type: MetricBadgeType.success, icon: Icons.check_circle_outline),
-                    const Icon(Icons.bookmark_border_rounded, size: 18, color: AppColors.textMuted),
+                  children: const [
+                    MetricBadge(text: 'Verified', type: MetricBadgeType.success, icon: Icons.check_circle_outline),
+                    Icon(Icons.bookmark_border_rounded, size: 18, color: AppColors.textMuted),
                   ],
                 ),
                 const SizedBox(height: 4),
@@ -422,7 +384,7 @@ class _B2bMarketplaceScreenState extends State<B2bMarketplaceScreen> {
                     ElevatedButton(
                       onPressed: () {
                         Navigator.of(context).push(
-                          MaterialPageRoute(builder: (_) => const CreateContractScreen()),
+                          SmoothPageRoute(page: const CreateContractScreen()),
                         );
                       },
                       style: ElevatedButton.styleFrom(
@@ -509,10 +471,10 @@ class _B2bMarketplaceScreenState extends State<B2bMarketplaceScreen> {
 
   Widget _buildSupplierBanner() {
     return Container(
-      padding: const EdgeInsets.all(12),
+      padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(14),
+        borderRadius: BorderRadius.circular(16),
         border: Border.all(color: AppColors.border),
       ),
       child: Row(
@@ -521,30 +483,30 @@ class _B2bMarketplaceScreenState extends State<B2bMarketplaceScreen> {
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
               color: AppColors.primaryLight,
-              borderRadius: BorderRadius.circular(8),
+              borderRadius: BorderRadius.circular(10),
             ),
-            child: const Icon(Icons.storefront_rounded, color: AppColors.primary, size: 22),
+            child: const Icon(Icons.storefront_rounded, color: AppColors.primary, size: 24),
           ),
           const SizedBox(width: 10),
           const Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('Are you a Supplier?', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700)),
-                Text('Join AgroSmart B2B network & grow.', style: TextStyle(fontSize: 10, color: AppColors.textSecondary)),
+                Text('Are you a Supplier or Trader?', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700)),
+                Text('Register as verified vendor to sell directly to buyers.', style: TextStyle(fontSize: 10, color: AppColors.textMuted)),
               ],
             ),
           ),
-          OutlinedButton(
+          ElevatedButton(
             onPressed: () {},
-            style: OutlinedButton.styleFrom(
-              foregroundColor: AppColors.primary,
-              side: const BorderSide(color: AppColors.primary),
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.primary,
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
               minimumSize: Size.zero,
+              elevation: 0,
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
             ),
-            child: const Text('Register', style: TextStyle(fontSize: 10, fontWeight: FontWeight.w700)),
+            child: const Text('Register', style: TextStyle(fontSize: 11, color: Colors.white, fontWeight: FontWeight.w700)),
           ),
         ],
       ),
@@ -554,67 +516,69 @@ class _B2bMarketplaceScreenState extends State<B2bMarketplaceScreen> {
   Widget _buildMyContractsTab(BuildContext context) {
     return Column(
       children: [
-        // Active contract card from contacts-2.png
-        Container(
-          padding: const EdgeInsets.all(14),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: AppColors.border),
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: const [
-                  MetricBadge(text: 'Active Contract', type: MetricBadgeType.success),
-                  Text('CT-2024-00018', style: TextStyle(fontSize: 11, color: AppColors.textMuted)),
-                ],
-              ),
-              const SizedBox(height: 8),
-              const Text(
-                'Purchase of Rice',
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
-              ),
-              const SizedBox(height: 4),
-              const Text('Total: 1000 kg (1 Ton) • Rice (Basmati)', style: TextStyle(fontSize: 11, color: AppColors.textSecondary)),
-              const SizedBox(height: 10),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: const [
-                  Text('Fulfilled: 450 kg (45%)', style: TextStyle(fontSize: 10, color: AppColors.primary, fontWeight: FontWeight.w600)),
-                  Text('In Progress: 350 kg', style: TextStyle(fontSize: 10, color: Colors.orange, fontWeight: FontWeight.w600)),
-                  Text('Pending: 200 kg', style: TextStyle(fontSize: 10, color: Colors.blue, fontWeight: FontWeight.w600)),
-                ],
-              ),
-              const SizedBox(height: 6),
-              ClipRRect(
-                borderRadius: BorderRadius.circular(4),
-                child: const LinearProgressIndicator(
-                  value: 0.45,
-                  minHeight: 6,
-                  backgroundColor: Color(0xFFE5E7EB),
-                  valueColor: AlwaysStoppedAnimation<Color>(AppColors.primary),
-                ),
-              ),
-              const SizedBox(height: 12),
-              ElevatedButton(
-                onPressed: () {
-                  Navigator.of(context).push(
-                    MaterialPageRoute(builder: (_) => const CreateContractScreen()),
-                  );
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.primary,
-                  minimumSize: const Size(double.infinity, 36),
-                ),
-                child: const Text('View Contract Details', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: Colors.white)),
-              ),
-            ],
-          ),
+        _buildContractItem(
+          id: 'CT-2024-001',
+          crop: 'Basmati Rice (1000 kg)',
+          buyer: 'Himalayan Foods Pvt. Ltd.',
+          status: 'Active',
+          statusType: MetricBadgeType.success,
+          price: 'Rs. 1,20,000',
+          deadline: '20 May 2024',
+        ),
+        const SizedBox(height: 10),
+        _buildContractItem(
+          id: 'CT-2024-002',
+          crop: 'Tomato Special (500 kg)',
+          buyer: 'Kalimati Organic Store',
+          status: 'Pending Escrow',
+          statusType: MetricBadgeType.warning,
+          price: 'Rs. 45,000',
+          deadline: '25 May 2024',
         ),
       ],
+    );
+  }
+
+  Widget _buildContractItem({
+    required String id,
+    required String crop,
+    required String buyer,
+    required String status,
+    required MetricBadgeType statusType,
+    required String price,
+    required String deadline,
+  }) {
+    return Container(
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: AppColors.border),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(id, style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: AppColors.primary)),
+              MetricBadge(text: status, type: statusType),
+            ],
+          ),
+          const SizedBox(height: 6),
+          Text(crop, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w700)),
+          const SizedBox(height: 2),
+          Text('Buyer: $buyer', style: const TextStyle(fontSize: 11, color: AppColors.textSecondary)),
+          const SizedBox(height: 8),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text('Value: $price', style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: AppColors.primary)),
+              Text('Delivery: $deadline', style: const TextStyle(fontSize: 10, color: AppColors.textMuted)),
+            ],
+          ),
+        ],
+      ),
     );
   }
 }

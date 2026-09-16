@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../core/theme/appColors.dart';
+import '../../../core/theme/appColors.dart';
 
 class SearchScreen extends StatefulWidget {
   const SearchScreen({super.key});
@@ -45,12 +45,14 @@ class _SearchScreenState extends State<SearchScreen> {
             ),
             child: IconButton(
               icon: const Icon(Icons.mic_none_rounded, color: AppColors.primary),
+              splashRadius: 20,
               onPressed: () {},
             ),
           ),
         ],
       ),
       body: SingleChildScrollView(
+        physics: const BouncingScrollPhysics(),
         padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'core/theme/appTheme.dart';
-import 'core/widgets/mainNavigationScaffold.dart';
+import 'features/splash/screens/splashScreen.dart';
 
 void main() {
   runApp(const AgroSmartApp());
@@ -15,7 +15,7 @@ class AgroSmartApp extends StatelessWidget {
       title: 'AgroSmart',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.lightTheme,
-      home: const MainNavigationScaffold(),
+      home: const SplashScreen(),
     );
   }
 }

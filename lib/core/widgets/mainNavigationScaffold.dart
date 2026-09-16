@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import '../theme/appColors.dart';
-import '../../features/home/homeScreen.dart';
-import '../../features/market/marketScreen.dart';
-import '../../features/aiScan/aiScanScreen.dart';
-import '../../features/b2bContracts/b2bMarketplaceScreen.dart';
-import '../../features/profile/profileScreen.dart';
+import '../../features/home/screens/homeScreen.dart';
+import '../../features/market/screens/marketScreen.dart';
+import '../../features/aiScan/screens/aiScanScreen.dart';
+import '../../features/b2bContracts/screens/b2bMarketplaceScreen.dart';
+import '../../features/profile/screens/profileScreen.dart';
 
 class MainNavigationScaffold extends StatefulWidget {
   final int initialIndex;
@@ -36,6 +36,7 @@ class _MainNavigationScaffoldState extends State<MainNavigationScaffold> {
   }
 
   void _onItemTapped(int index) {
+    if (_currentIndex == index) return;
     setState(() {
       _currentIndex = index;
     });
@@ -44,9 +45,17 @@ class _MainNavigationScaffoldState extends State<MainNavigationScaffold> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: IndexedStack(
-        index: _currentIndex,
-        children: _screens,
+      body: AnimatedSwitcher(
+        duration: const Duration(milliseconds: 220),
+        switchInCurve: Curves.easeInOut,
+        switchOutCurve: Curves.easeInOut,
+        transitionBuilder: (child, animation) {
+          return FadeTransition(opacity: animation, child: child);
+        },
+        child: KeyedSubtree(
+          key: ValueKey<int>(_currentIndex),
+          child: _screens[_currentIndex],
+        ),
       ),
       bottomNavigationBar: Container(
         decoration: BoxDecoration(
@@ -110,24 +119,28 @@ class _MainNavigationScaffoldState extends State<MainNavigationScaffold> {
       borderRadius: BorderRadius.circular(12),
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(
-              icon,
-              color: color,
-              size: 24,
-            ),
-            const SizedBox(height: 3),
-            Text(
-              label,
-              style: TextStyle(
+        child: AnimatedScale(
+          scale: isSelected ? 1.05 : 1.0,
+          duration: const Duration(milliseconds: 180),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(
+                icon,
                 color: color,
-                fontSize: 11,
-                fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
+                size: 24,
               ),
-            ),
-          ],
+              const SizedBox(height: 3),
+              Text(
+                label,
+                style: TextStyle(
+                  color: color,
+                  fontSize: 11,
+                  fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -137,39 +150,43 @@ class _MainNavigationScaffoldState extends State<MainNavigationScaffold> {
     final isSelected = _currentIndex == 2;
     return GestureDetector(
       onTap: () => _onItemTapped(2),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Container(
-            width: 48,
-            height: 48,
-            decoration: BoxDecoration(
-              color: AppColors.primary,
-              shape: BoxShape.circle,
-              boxShadow: [
-                BoxShadow(
-                  color: AppColors.primary.withValues(alpha: 0.35),
-                  blurRadius: 10,
-                  offset: const Offset(0, 4),
-                ),
-              ],
+      child: AnimatedScale(
+        scale: isSelected ? 1.06 : 1.0,
+        duration: const Duration(milliseconds: 180),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: 48,
+              height: 48,
+              decoration: BoxDecoration(
+                color: AppColors.primary,
+                shape: BoxShape.circle,
+                boxShadow: [
+                  BoxShadow(
+                    color: AppColors.primary.withValues(alpha: 0.35),
+                    blurRadius: 10,
+                    offset: const Offset(0, 4),
+                  ),
+                ],
+              ),
+              child: const Icon(
+                Icons.document_scanner_outlined,
+                color: Colors.white,
+                size: 26,
+              ),
             ),
-            child: const Icon(
-              Icons.document_scanner_outlined,
-              color: Colors.white,
-              size: 26,
+            const SizedBox(height: 3),
+            Text(
+              'AI Scan / Chat',
+              style: TextStyle(
+                color: isSelected ? AppColors.primary : AppColors.textMuted,
+                fontSize: 10,
+                fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
+              ),
             ),
-          ),
-          const SizedBox(height: 3),
-          Text(
-            'AI Scan / Chat',
-            style: TextStyle(
-              color: isSelected ? AppColors.primary : AppColors.textMuted,
-              fontSize: 10,
-              fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
-            ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

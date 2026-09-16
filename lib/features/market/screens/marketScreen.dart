@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
-import '../../core/theme/appColors.dart';
+import '../../../core/theme/appColors.dart';
+import '../widgets/sparklinePainter.dart';
+import '../widgets/marketSummaryCard.dart';
 
 class MarketScreen extends StatefulWidget {
   const MarketScreen({super.key});
@@ -45,6 +47,7 @@ class _MarketScreenState extends State<MarketScreen> {
         ],
       ),
       body: SingleChildScrollView(
+        physics: const BouncingScrollPhysics(),
         padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -53,6 +56,7 @@ class _MarketScreenState extends State<MarketScreen> {
             SizedBox(
               height: 38,
               child: ListView.separated(
+                physics: const BouncingScrollPhysics(),
                 scrollDirection: Axis.horizontal,
                 itemCount: _categories.length,
                 separatorBuilder: (context, index) => const SizedBox(width: 8),
@@ -99,7 +103,7 @@ class _MarketScreenState extends State<MarketScreen> {
             const SizedBox(height: 16),
 
             // Market Summary Card
-            _buildMarketSummaryCard(),
+            const MarketSummaryCard(),
 
             const SizedBox(height: 16),
 
@@ -117,142 +121,6 @@ class _MarketScreenState extends State<MarketScreen> {
             _buildMarketInsightsCard(),
 
             const SizedBox(height: 24),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildMarketSummaryCard() {
-    return Container(
-      padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.border),
-      ),
-      child: Column(
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              const Row(
-                children: [
-                  Text(
-                    'Market Summary',
-                    style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: AppColors.textPrimary),
-                  ),
-                  SizedBox(width: 4),
-                  Icon(Icons.info_outline_rounded, size: 14, color: AppColors.textMuted),
-                ],
-              ),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                decoration: BoxDecoration(
-                  color: AppColors.background,
-                  borderRadius: BorderRadius.circular(8),
-                  border: Border.all(color: AppColors.border),
-                ),
-                child: const Row(
-                  children: [
-                    Icon(Icons.calendar_today_outlined, size: 12, color: AppColors.textSecondary),
-                    SizedBox(width: 4),
-                    Text('Today', style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600)),
-                    Icon(Icons.keyboard_arrow_down_rounded, size: 14),
-                  ],
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 4),
-          const Align(
-            alignment: Alignment.centerLeft,
-            child: Text(
-              'Updated today, 10:30 AM',
-              style: TextStyle(fontSize: 10, color: AppColors.textMuted),
-            ),
-          ),
-          const SizedBox(height: 14),
-          Row(
-            children: [
-              _buildSummaryStat(
-                value: '12',
-                label: 'Crops Up',
-                change: '↑ 2 vs yesterday',
-                icon: Icons.arrow_upward_rounded,
-                iconColor: AppColors.success,
-                bgColor: AppColors.successLight,
-              ),
-              const SizedBox(width: 8),
-              _buildSummaryStat(
-                value: '5',
-                label: 'Crops Down',
-                change: '↓ 1 vs yesterday',
-                icon: Icons.arrow_downward_rounded,
-                iconColor: AppColors.danger,
-                bgColor: AppColors.dangerLight,
-              ),
-              const SizedBox(width: 8),
-              _buildSummaryStat(
-                value: '2',
-                label: 'No Change',
-                change: '– 0 vs yesterday',
-                icon: Icons.remove_rounded,
-                iconColor: Colors.orange,
-                bgColor: const Color(0xFFFEF3C7),
-              ),
-              const SizedBox(width: 8),
-              _buildSummaryStat(
-                value: 'Rs. 28.4',
-                label: 'Overall Avg',
-                change: '↑ 1.8% vs yest.',
-                icon: Icons.auto_graph_rounded,
-                iconColor: AppColors.primary,
-                bgColor: AppColors.primaryLight,
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildSummaryStat({
-    required String value,
-    required String label,
-    required String change,
-    required IconData icon,
-    required Color iconColor,
-    required Color bgColor,
-  }) {
-    return Expanded(
-      child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 6),
-        decoration: BoxDecoration(
-          color: AppColors.background,
-          borderRadius: BorderRadius.circular(10),
-        ),
-        child: Column(
-          children: [
-            Container(
-              padding: const EdgeInsets.all(4),
-              decoration: BoxDecoration(color: bgColor, shape: BoxShape.circle),
-              child: Icon(icon, size: 14, color: iconColor),
-            ),
-            const SizedBox(height: 4),
-            Text(
-              value,
-              style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w800, color: AppColors.textPrimary),
-            ),
-            Text(
-              label,
-              style: const TextStyle(fontSize: 9, color: AppColors.textMuted),
-            ),
-            const SizedBox(height: 2),
-            Text(
-              change,
-              style: TextStyle(fontSize: 8, fontWeight: FontWeight.w600, color: iconColor),
-            ),
           ],
         ),
       ),
@@ -309,7 +177,7 @@ class _MarketScreenState extends State<MarketScreen> {
             height: 100,
             child: CustomPaint(
               size: const Size(double.infinity, 100),
-              painter: _SparklinePainter(points: trendPoints),
+              painter: SparklinePainter(points: trendPoints),
             ),
           ),
           const SizedBox(height: 6),
@@ -397,38 +265,26 @@ class _MarketScreenState extends State<MarketScreen> {
               final c = crops[index];
               final isUp = c['isUp'] as bool;
               return ListTile(
-                contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 4),
-                leading: Text(c['icon'] as String, style: const TextStyle(fontSize: 28)),
-                title: Text(
-                  c['name'] as String,
-                  style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: AppColors.textPrimary),
-                ),
-                subtitle: Text(c['unit'] as String, style: const TextStyle(fontSize: 10, color: AppColors.textMuted)),
-                trailing: Row(
-                  mainAxisSize: MainAxisSize.min,
+                leading: Text(c['icon'] as String, style: const TextStyle(fontSize: 24)),
+                title: Row(
                   children: [
-                    Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.end,
-                      children: [
-                        Text(
-                          c['price'] as String,
-                          style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: AppColors.textPrimary),
-                        ),
-                        Text(
-                          c['change'] as String,
-                          style: TextStyle(
-                            fontSize: 10,
-                            fontWeight: FontWeight.w600,
-                            color: isUp ? AppColors.success : AppColors.danger,
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(width: 8),
-                    const Icon(Icons.chevron_right_rounded, color: AppColors.textMuted, size: 18),
+                    Text(c['name'] as String, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700)),
+                    const SizedBox(width: 4),
+                    Text(c['unit'] as String, style: const TextStyle(fontSize: 11, color: AppColors.textMuted)),
                   ],
                 ),
+                trailing: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    Text(c['price'] as String, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w800, color: AppColors.textPrimary)),
+                    Text(
+                      c['change'] as String,
+                      style: TextStyle(fontSize: 10, fontWeight: FontWeight.w600, color: isUp ? AppColors.success : AppColors.danger),
+                    ),
+                  ],
+                ),
+                onTap: () {},
               );
             },
           ),
@@ -441,101 +297,30 @@ class _MarketScreenState extends State<MarketScreen> {
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: const Color(0xFFF0FDF4),
+        color: Colors.white,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color(0xFFBBF7D0)),
+        border: Border.all(color: AppColors.border),
       ),
-      child: Row(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Container(
-            padding: const EdgeInsets.all(8),
-            decoration: const BoxDecoration(
-              color: Colors.white,
-              shape: BoxShape.circle,
-            ),
-            child: const Icon(Icons.analytics_outlined, color: AppColors.primary, size: 22),
+          const Row(
+            children: [
+              Icon(Icons.insights_rounded, size: 18, color: AppColors.primary),
+              SizedBox(width: 8),
+              Text(
+                'Market Intelligence',
+                style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: AppColors.textPrimary),
+              ),
+            ],
           ),
-          const SizedBox(width: 12),
-          const Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Market Insights',
-                  style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: AppColors.primary),
-                ),
-                SizedBox(height: 2),
-                Text(
-                  'Tomato prices are likely to rise in the coming week due to low supply in major markets.',
-                  style: TextStyle(fontSize: 11, color: AppColors.textSecondary),
-                ),
-              ],
-            ),
-          ),
-          OutlinedButton(
-            onPressed: () {},
-            style: OutlinedButton.styleFrom(
-              foregroundColor: AppColors.primary,
-              side: const BorderSide(color: AppColors.primary),
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-              minimumSize: Size.zero,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-            ),
-            child: const Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text('View Insights', style: TextStyle(fontSize: 10, fontWeight: FontWeight.w700)),
-                Icon(Icons.chevron_right_rounded, size: 12),
-              ],
-            ),
+          const SizedBox(height: 10),
+          const Text(
+            'Vegetable prices in Kalimati market show a slight upward trend this week due to transport disruption caused by early monsoon rains. High demand for organic tomatoes continues.',
+            style: TextStyle(fontSize: 12, color: AppColors.textSecondary, height: 1.4),
           ),
         ],
       ),
     );
   }
-}
-
-class _SparklinePainter extends CustomPainter {
-  final List<double> points;
-
-  _SparklinePainter({required this.points});
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    if (points.isEmpty) return;
-
-    final min = points.reduce((a, b) => a < b ? a : b);
-    final max = points.reduce((a, b) => a > b ? a : b);
-    final range = (max - min == 0) ? 1.0 : (max - min);
-
-    final linePaint = Paint()
-      ..color = AppColors.primary
-      ..strokeWidth = 2.5
-      ..style = PaintingStyle.stroke
-      ..strokeCap = StrokeCap.round;
-
-    final path = Path();
-    final dotPaint = Paint()..color = AppColors.primary;
-    final dotInnerPaint = Paint()..color = Colors.white;
-
-    for (int i = 0; i < points.length; i++) {
-      final x = (size.width / (points.length - 1)) * i;
-      final normalizedY = (points[i] - min) / range;
-      final y = size.height - (normalizedY * (size.height - 20) + 10);
-
-      if (i == 0) {
-        path.moveTo(x, y);
-      } else {
-        path.lineTo(x, y);
-      }
-      // draw node dots
-      canvas.drawCircle(Offset(x, y), 3.5, dotPaint);
-      canvas.drawCircle(Offset(x, y), 1.8, dotInnerPaint);
-    }
-
-    canvas.drawPath(path, linePaint);
-  }
-
-  @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => true;
 }

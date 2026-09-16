@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
-import '../../core/theme/appColors.dart';
-import '../../core/widgets/metricBadge.dart';
-import '../notifications/notificationScreen.dart';
+import '../../../core/theme/appColors.dart';
+import '../../../core/widgets/metricBadge.dart';
+import '../../../core/widgets/smoothPageRoute.dart';
+import '../../notifications/screens/notificationScreen.dart';
+import '../widgets/sensorMetricCard.dart';
+import '../widgets/deviceHeroCard.dart';
+import '../widgets/irrigationGaugeCard.dart';
 
 class SensorDashboardScreen extends StatefulWidget {
   const SensorDashboardScreen({super.key});
@@ -30,26 +34,29 @@ class _SensorDashboardScreenState extends State<SensorDashboardScreen> {
           IconButton(
             icon: const Icon(Icons.notifications_none_rounded),
             color: AppColors.textPrimary,
+            splashRadius: 22,
             onPressed: () {
               Navigator.of(context).push(
-                MaterialPageRoute(builder: (_) => const NotificationScreen()),
+                SmoothPageRoute(page: const NotificationScreen()),
               );
             },
           ),
           IconButton(
             icon: const Icon(Icons.more_vert_rounded),
             color: AppColors.textPrimary,
+            splashRadius: 22,
             onPressed: () {},
           ),
         ],
       ),
       body: SingleChildScrollView(
+        physics: const BouncingScrollPhysics(),
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             // Active Device Hero Card
-            _buildDeviceHeroCard(),
+            const DeviceHeroCard(),
 
             const SizedBox(height: 14),
 
@@ -83,89 +90,11 @@ class _SensorDashboardScreenState extends State<SensorDashboardScreen> {
     );
   }
 
-  Widget _buildDeviceHeroCard() {
-    return Container(
-      padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.border),
-      ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Container(
-            width: 50,
-            height: 50,
-            decoration: BoxDecoration(
-              color: AppColors.primaryLight,
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: const Icon(Icons.router_rounded, color: AppColors.primary, size: 28),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: const [
-                    Text(
-                      'North Field Sensor 1',
-                      style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: AppColors.textPrimary),
-                    ),
-                    SizedBox(width: 6),
-                    MetricBadge(text: 'Active', type: MetricBadgeType.success),
-                  ],
-                ),
-                const SizedBox(height: 4),
-                const Row(
-                  children: [
-                    Icon(Icons.location_on_outlined, size: 12, color: AppColors.textMuted),
-                    SizedBox(width: 3),
-                    Text('Location: North Field, Plot A', style: TextStyle(fontSize: 11, color: AppColors.textSecondary)),
-                  ],
-                ),
-                const SizedBox(height: 2),
-                const Row(
-                  children: [
-                    Icon(Icons.access_time_rounded, size: 12, color: AppColors.textMuted),
-                    SizedBox(width: 3),
-                    Text('Last updated: 2 min ago', style: TextStyle(fontSize: 10, color: AppColors.textMuted)),
-                  ],
-                ),
-              ],
-            ),
-          ),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: const [
-              Row(
-                children: [
-                  Text('82%', style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: AppColors.primary)),
-                  SizedBox(width: 2),
-                  Icon(Icons.battery_charging_full_rounded, size: 14, color: AppColors.primary),
-                ],
-              ),
-              SizedBox(height: 4),
-              Row(
-                children: [
-                  Text('Strong', style: TextStyle(fontSize: 10, fontWeight: FontWeight.w600, color: AppColors.primary)),
-                  SizedBox(width: 2),
-                  Icon(Icons.wifi_rounded, size: 12, color: AppColors.primary),
-                ],
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
   Widget _buildTabs() {
     return SizedBox(
       height: 34,
       child: ListView.separated(
+        physics: const BouncingScrollPhysics(),
         scrollDirection: Axis.horizontal,
         itemCount: _tabs.length,
         separatorBuilder: (context, index) => const SizedBox(width: 8),
@@ -177,7 +106,7 @@ class _SensorDashboardScreenState extends State<SensorDashboardScreen> {
               padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
               decoration: BoxDecoration(
                 color: isSelected ? AppColors.primary : Colors.white,
-                borderRadius: BorderRadius.circular(20),
+                borderRadius: BorderRadius.circular(16),
                 border: Border.all(color: isSelected ? AppColors.primary : AppColors.border),
               ),
               child: Text(
@@ -220,67 +149,14 @@ class _SensorDashboardScreenState extends State<SensorDashboardScreen> {
       itemCount: metrics.length,
       itemBuilder: (context, index) {
         final m = metrics[index];
-        final color = m['color'] as Color;
-        return Container(
-          padding: const EdgeInsets.all(8),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: AppColors.border),
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Row(
-                children: [
-                  Icon(m['icon'] as IconData, size: 14, color: color),
-                  const SizedBox(width: 4),
-                  Expanded(
-                    child: Text(
-                      m['title'] as String,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w600, color: AppColors.textPrimary),
-                    ),
-                  ),
-                ],
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    m['val'] as String,
-                    style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w800, color: AppColors.textPrimary),
-                  ),
-                  MetricBadge(
-                    text: m['badge'] as String,
-                    type: m['btype'] as MetricBadgeType,
-                  ),
-                ],
-              ),
-              Text(
-                'Ideal: ${m['ideal']}',
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: const TextStyle(fontSize: 8, color: AppColors.textMuted),
-              ),
-              // Mini wave indicator
-              ClipRRect(
-                borderRadius: BorderRadius.circular(4),
-                child: Container(
-                  height: 4,
-                  width: double.infinity,
-                  color: color.withValues(alpha: 0.2),
-                  child: FractionallySizedBox(
-                    alignment: Alignment.centerLeft,
-                    widthFactor: 0.7,
-                    child: Container(color: color),
-                  ),
-                ),
-              ),
-            ],
-          ),
+        return SensorMetricCard(
+          title: m['title'] as String,
+          value: m['val'] as String,
+          badgeText: m['badge'] as String,
+          badgeType: m['btype'] as MetricBadgeType,
+          idealRange: m['ideal'] as String,
+          color: m['color'] as Color,
+          icon: m['icon'] as IconData,
         );
       },
     );
@@ -291,65 +167,8 @@ class _SensorDashboardScreenState extends State<SensorDashboardScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         // Irrigation Status Card
-        Expanded(
-          child: Container(
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: AppColors.border),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Row(
-                  children: [
-                    Icon(Icons.water_drop_outlined, size: 14, color: Colors.blue),
-                    SizedBox(width: 4),
-                    Text('Irrigation Status', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700)),
-                  ],
-                ),
-                const SizedBox(height: 10),
-                Center(
-                  child: Stack(
-                    alignment: Alignment.center,
-                    children: [
-                      const SizedBox(
-                        width: 70,
-                        height: 70,
-                        child: CircularProgressIndicator(
-                          value: 0.60,
-                          strokeWidth: 7,
-                          backgroundColor: Color(0xFFE5E7EB),
-                          valueColor: AlwaysStoppedAnimation<Color>(AppColors.primary),
-                        ),
-                      ),
-                      Column(
-                        children: const [
-                          Text('60%', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w800)),
-                          Text('Efficiency', style: TextStyle(fontSize: 8, color: AppColors.textMuted)),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 10),
-                const Text('Next: Tomorrow 6:00 AM', style: TextStyle(fontSize: 10, color: AppColors.textSecondary)),
-                const Text('Water Used: 120 L', style: TextStyle(fontSize: 10, color: AppColors.textSecondary)),
-                const SizedBox(height: 8),
-                ElevatedButton.icon(
-                  onPressed: () {},
-                  icon: const Icon(Icons.play_arrow_rounded, size: 14, color: Colors.white),
-                  label: const Text('Run Irrigation', style: TextStyle(fontSize: 10, fontWeight: FontWeight.w700, color: Colors.white)),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.primary,
-                    minimumSize: const Size(double.infinity, 32),
-                    padding: EdgeInsets.zero,
-                  ),
-                ),
-              ],
-            ),
-          ),
+        const Expanded(
+          child: IrrigationGaugeCard(),
         ),
         const SizedBox(width: 10),
         // Device Status Card

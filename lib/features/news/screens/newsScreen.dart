@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
-import '../../core/theme/appColors.dart';
-import '../../core/widgets/metricBadge.dart';
-import '../notifications/notificationScreen.dart';
+import '../../../core/theme/appColors.dart';
+import '../../../core/widgets/metricBadge.dart';
+import '../../../core/widgets/smoothPageRoute.dart';
+import '../../notifications/screens/notificationScreen.dart';
 
 class NewsScreen extends StatefulWidget {
   const NewsScreen({super.key});
@@ -30,20 +31,23 @@ class _NewsScreenState extends State<NewsScreen> {
           IconButton(
             icon: const Icon(Icons.search_rounded),
             color: AppColors.textPrimary,
+            splashRadius: 20,
             onPressed: () {},
           ),
           IconButton(
             icon: const Icon(Icons.notifications_none_rounded),
             color: AppColors.textPrimary,
+            splashRadius: 20,
             onPressed: () {
               Navigator.of(context).push(
-                MaterialPageRoute(builder: (_) => const NotificationScreen()),
+                SmoothPageRoute(page: const NotificationScreen()),
               );
             },
           ),
         ],
       ),
       body: SingleChildScrollView(
+        physics: const BouncingScrollPhysics(),
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -52,6 +56,7 @@ class _NewsScreenState extends State<NewsScreen> {
             SizedBox(
               height: 34,
               child: ListView.separated(
+                physics: const BouncingScrollPhysics(),
                 scrollDirection: Axis.horizontal,
                 itemCount: _categories.length,
                 separatorBuilder: (context, index) => const SizedBox(width: 8),
@@ -99,24 +104,24 @@ class _NewsScreenState extends State<NewsScreen> {
             _buildStoryItem(
               tag: 'MARKET',
               tagType: MetricBadgeType.success,
-              title: 'Tomato Prices Rise in Major Markets',
-              sub: 'Tomato prices have increased by up to 18% in wholesale markets this week.',
-              meta: '4h ago • 3 min read',
-              icon: '🍅',
+              title: 'Kalimati Vegetable Market: Potato & Onion Prices Fall by 15%',
+              sub: 'Bumper production in Terai districts leads to a price drop, easing consumers.',
+              meta: '3h ago • 3 min read',
+              icon: '🥔',
             ),
             const SizedBox(height: 10),
             _buildStoryItem(
-              tag: 'CROPS',
+              tag: 'WEATHER',
               tagType: MetricBadgeType.info,
-              title: 'Rice Production to Increase by 7% This Year',
-              sub: 'Government data shows positive outlook for rice production in FY 2081/82.',
-              meta: '6h ago • 4 min read',
-              icon: '🍚',
+              title: 'Pre-Monsoon Showers in Eastern Nepal: Favorable for Tea Estates',
+              sub: 'Ilam and Jhapa record 25mm rain; orthodox tea quality expected to improve.',
+              meta: '5h ago • 4 min read',
+              icon: '🌧️',
             ),
             const SizedBox(height: 10),
             _buildStoryItem(
               tag: 'TECHNOLOGY',
-              tagType: MetricBadgeType.neutral,
+              tagType: MetricBadgeType.primary,
               title: 'New AI Tool Helps Detect Plant Diseases Early',
               sub: 'Researchers develop AI model that identifies 15+ plant diseases with 95% accuracy.',
               meta: '1d ago • 5 min read',
@@ -161,6 +166,7 @@ class _NewsScreenState extends State<NewsScreen> {
                       backgroundColor: AppColors.primary,
                       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                       minimumSize: Size.zero,
+                      elevation: 0,
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                     ),
                   ),
@@ -199,6 +205,13 @@ class _NewsScreenState extends State<NewsScreen> {
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
+        boxShadow: [
+          BoxShadow(
+            color: const Color(0xFF075E3D).withValues(alpha: 0.3),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -248,8 +261,6 @@ class _NewsScreenState extends State<NewsScreen> {
                   CircleAvatar(radius: 3, backgroundColor: Colors.white),
                   SizedBox(width: 4),
                   CircleAvatar(radius: 3, backgroundColor: Colors.white38),
-                  SizedBox(width: 4),
-                  CircleAvatar(radius: 3, backgroundColor: Colors.white38),
                 ],
               ),
             ],
@@ -273,6 +284,13 @@ class _NewsScreenState extends State<NewsScreen> {
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: AppColors.border),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.02),
+            blurRadius: 6,
+            offset: const Offset(0, 2),
+          ),
+        ],
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -332,6 +350,7 @@ class _NewsScreenState extends State<NewsScreen> {
     return SizedBox(
       height: 160,
       child: ListView.separated(
+        physics: const BouncingScrollPhysics(),
         scrollDirection: Axis.horizontal,
         itemCount: picks.length,
         separatorBuilder: (context, index) => const SizedBox(width: 10),
