@@ -1,17 +1,19 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/theme/appColors.dart';
 import '../../../core/widgets/smoothPageRoute.dart';
 import '../../notifications/screens/notificationScreen.dart';
 import '../../auth/screens/loginScreen.dart';
+import '../../auth/providers/authProvider.dart';
 import '../widgets/profileCard.dart';
 import '../widgets/profileStatsRow.dart';
 import '../widgets/agroProBanner.dart';
 
-class ProfileScreen extends StatelessWidget {
+class ProfileScreen extends ConsumerWidget {
   const ProfileScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
@@ -73,7 +75,7 @@ class ProfileScreen extends StatelessWidget {
             const SizedBox(height: 16),
 
             // Log Out Button
-            _buildLogoutButton(context),
+            _buildLogoutButton(context, ref),
 
             const SizedBox(height: 24),
           ],
@@ -122,7 +124,7 @@ class ProfileScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildLogoutButton(BuildContext context) {
+  Widget _buildLogoutButton(BuildContext context, WidgetRef ref) {
     return Material(
       color: Colors.white,
       shape: RoundedRectangleBorder(
@@ -137,6 +139,7 @@ class ProfileScreen extends StatelessWidget {
           style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: AppColors.danger),
         ),
         onTap: () {
+          ref.read(authProvider.notifier).logout();
           Navigator.of(context).pushAndRemoveUntil(
             SmoothPageRoute(page: const LoginScreen()),
             (route) => false,
@@ -146,3 +149,4 @@ class ProfileScreen extends StatelessWidget {
     );
   }
 }
+

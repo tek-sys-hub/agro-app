@@ -1,16 +1,21 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/theme/appColors.dart';
+import '../../market/providers/marketProvider.dart';
 
-class ProfileStatsRow extends StatelessWidget {
+class ProfileStatsRow extends ConsumerWidget {
   const ProfileStatsRow({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final marketState = ref.watch(marketProvider);
+    final cropCount = marketState.crops.length;
+
     final stats = [
-      {'val': '12', 'label': 'Crops Added', 'icon': Icons.eco_outlined, 'color': Colors.green},
-      {'val': '5', 'label': 'Devices', 'icon': Icons.sensors_rounded, 'color': Colors.blue},
-      {'val': '28', 'label': 'Consults', 'icon': Icons.chat_bubble_outline_rounded, 'color': Colors.purple},
-      {'val': '4.9', 'label': 'Rating', 'icon': Icons.star_rounded, 'color': Colors.amber},
+      {'val': '$cropCount', 'label': 'Tracked Crops', 'icon': Icons.eco_outlined, 'color': Colors.green},
+      {'val': '4', 'label': 'Active Sensors', 'icon': Icons.sensors_rounded, 'color': Colors.blue},
+      {'val': '12', 'label': 'AI Diagnostics', 'icon': Icons.chat_bubble_outline_rounded, 'color': Colors.purple},
+      {'val': '5.0', 'label': 'Trust Score', 'icon': Icons.star_rounded, 'color': Colors.amber},
     ];
 
     return Row(

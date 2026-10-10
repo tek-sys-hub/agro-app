@@ -1,19 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/theme/appColors.dart';
 import '../../../core/widgets/smoothPageRoute.dart';
+import '../../market/providers/marketProvider.dart';
 import '../../market/screens/searchScreen.dart';
 
-class MarketPricesSection extends StatelessWidget {
+class MarketPricesSection extends ConsumerWidget {
   const MarketPricesSection({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    final items = [
-      {'name': 'Tomato', 'price': 'Rs. 48/Kg', 'change': '▼ 2.3%', 'isUp': false, 'icon': '🍅'},
-      {'name': 'Potato', 'price': 'Rs. 32/Kg', 'change': '▲ 1.1%', 'isUp': true, 'icon': '🥔'},
-      {'name': 'Rice', 'price': 'Rs. 64/Kg', 'change': '▼ 0.8%', 'isUp': false, 'icon': '🍚'},
-      {'name': 'Maize', 'price': 'Rs. 30/Kg', 'change': '▼ 1.5%', 'isUp': false, 'icon': '🌽'},
-    ];
+  Widget build(BuildContext context, WidgetRef ref) {
+    final marketState = ref.watch(marketProvider);
+    final crops = marketState.crops;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -39,67 +37,89 @@ class MarketPricesSection extends StatelessWidget {
           ],
         ),
         const SizedBox(height: 12),
-        SizedBox(
-          height: 86,
-          child: ListView.separated(
-            physics: const BouncingScrollPhysics(),
-            scrollDirection: Axis.horizontal,
-            itemCount: items.length,
-            separatorBuilder: (context, index) => const SizedBox(width: 10),
-            itemBuilder: (context, index) {
-              final item = items[index];
-              final isUp = item['isUp'] as bool;
-              return Container(
-                width: 130,
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(14),
-                  border: Border.all(color: AppColors.border),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.02),
-                      blurRadius: 6,
-                      offset: const Offset(0, 2),
-                    ),
-                  ],
-                ),
-                child: Row(
-                  children: [
-                    Text(item['icon'] as String, style: const TextStyle(fontSize: 26)),
-                    const SizedBox(width: 8),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Text(
-                            item['name'] as String,
-                            style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700),
-                          ),
-                          const SizedBox(height: 2),
-                          Text(
-                            item['price'] as String,
-                            style: const TextStyle(fontSize: 11, color: AppColors.textSecondary),
-                          ),
-                          const SizedBox(height: 2),
-                          Text(
-                            item['change'] as String,
-                            style: TextStyle(
-                              fontSize: 10,
-                              fontWeight: FontWeight.w600,
-                              color: isUp ? AppColors.success : AppColors.danger,
-                            ),
-                          ),
-                        ],
+        if (marketState.isLoading)
+          const Center(
+            child: Padding(
+              padding: EdgeInsets.all(16.0),
+              child: CircularProgressIndicator(strokeWidth: 2, color: AppColors.primary),
+            ),
+          )
+        else if (crops.isEmpty)
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(14),
+              border: Border.all(color: AppColors.border),
+            ),
+            child: const Center(
+              child: Text(
+                'No market prices recorded yet in database.',
+                style: TextStyle(fontSize: 12, color: AppColors.textMuted),
+              ),
+            ),
+          )
+        else
+          SizedBox(
+            height: 86,
+            child: ListView.separated(
+              physics: const BouncingScrollPhysics(),
+              scrollDirection: Axis.horizontal,
+              itemCount: crops.length,
+              separatorBuilder: (context, index) => const SizedBox(width: 10),
+              itemBuilder: (context, index) {
+                final item = crops[index];
+                return Container(
+                  width: 135,
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(14),
+                    border: Border.all(color: AppColors.border),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: 0.02),
+                        blurRadius: 6,
+                        offset: const Offset(0, 2),
                       ),
-                    ),
-                  ],
-                ),
-              );
-            },
+                    ],
+                  ),
+                  child: Row(
+                    children: [
+                      Text(item.icon, style: const TextStyle(fontSize: 26)),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text(
+                              item.name,
+                              style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700),
+                            ),
+                            const SizedBox(height: 2),
+                            Text(
+                              item.price,
+                              style: const TextStyle(fontSize: 11, color: AppColors.textSecondary),
+                            ),
+                            const SizedBox(height: 2),
+                            Text(
+                              item.change,
+                              style: TextStyle(
+                                fontSize: 10,
+                                fontWeight: FontWeight.w600,
+                                color: item.isUp ? AppColors.success : AppColors.danger,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                );
+              },
+            ),
           ),
-        ),
       ],
     );
   }

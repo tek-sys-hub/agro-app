@@ -1,21 +1,20 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/theme/appColors.dart';
+import '../providers/marketProvider.dart';
 import '../widgets/sparklinePainter.dart';
 import '../widgets/marketSummaryCard.dart';
 
-class MarketScreen extends StatefulWidget {
+class MarketScreen extends ConsumerWidget {
   const MarketScreen({super.key});
 
-  @override
-  State<MarketScreen> createState() => _MarketScreenState();
-}
-
-class _MarketScreenState extends State<MarketScreen> {
-  int _selectedCategoryIndex = 0;
-  final List<String> _categories = ['Overview', 'Crops', 'Trends', 'Markets'];
+  static const List<String> _categories = ['Overview', 'Crops', 'Trends', 'Markets'];
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final marketState = ref.watch(marketProvider);
+    final cropsList = ref.watch(filteredCropsProvider);
+
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
@@ -37,7 +36,7 @@ class _MarketScreenState extends State<MarketScreen> {
                 Icon(Icons.location_on_rounded, size: 14, color: AppColors.primary),
                 SizedBox(width: 4),
                 Text(
-                  'Kathmandu, Nepal',
+                  'Kanchanpur, Nepal',
                   style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: AppColors.textPrimary),
                 ),
                 Icon(Icons.keyboard_arrow_down_rounded, size: 16, color: AppColors.textMuted),
@@ -61,9 +60,9 @@ class _MarketScreenState extends State<MarketScreen> {
                 itemCount: _categories.length,
                 separatorBuilder: (context, index) => const SizedBox(width: 8),
                 itemBuilder: (context, index) {
-                  final isSelected = _selectedCategoryIndex == index;
+                  final isSelected = marketState.selectedCategoryIndex == index;
                   return GestureDetector(
-                    onTap: () => setState(() => _selectedCategoryIndex = index),
+                    onTap: () => ref.read(marketProvider.notifier).setCategoryIndex(index),
                     child: Container(
                       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                       decoration: BoxDecoration(
@@ -113,7 +112,7 @@ class _MarketScreenState extends State<MarketScreen> {
             const SizedBox(height: 20),
 
             // Top Crops by Price
-            _buildTopCropsList(context),
+            _buildTopCropsList(context, cropsList),
 
             const SizedBox(height: 20),
 
@@ -216,15 +215,7 @@ class _MarketScreenState extends State<MarketScreen> {
     );
   }
 
-  Widget _buildTopCropsList(BuildContext context) {
-    final crops = [
-      {'name': 'Rice', 'unit': '(per Kg)', 'price': 'Rs. 64 /Kg', 'change': '↑ 0.8%', 'isUp': true, 'icon': '🍚'},
-      {'name': 'Tomato', 'unit': '(per Kg)', 'price': 'Rs. 48 /Kg', 'change': '↑ 2.3%', 'isUp': true, 'icon': '🍅'},
-      {'name': 'Potato', 'unit': '(per Kg)', 'price': 'Rs. 32 /Kg', 'change': '↓ 1.1%', 'isUp': false, 'icon': '🥔'},
-      {'name': 'Maize', 'unit': '(per Kg)', 'price': 'Rs. 30 /Kg', 'change': '↑ 1.5%', 'isUp': true, 'icon': '🌽'},
-      {'name': 'Chili', 'unit': '(per Kg)', 'price': 'Rs. 120 /Kg', 'change': '↓ 0.5%', 'isUp': false, 'icon': '🌶️'},
-    ];
-
+  Widget _buildTopCropsList(BuildContext context, List<CropModel> crops) {
     return Column(
       children: [
         Row(
@@ -263,24 +254,23 @@ class _MarketScreenState extends State<MarketScreen> {
             separatorBuilder: (context, index) => const Divider(height: 1, color: AppColors.borderSubtle),
             itemBuilder: (context, index) {
               final c = crops[index];
-              final isUp = c['isUp'] as bool;
               return ListTile(
-                leading: Text(c['icon'] as String, style: const TextStyle(fontSize: 24)),
+                leading: Text(c.icon, style: const TextStyle(fontSize: 24)),
                 title: Row(
                   children: [
-                    Text(c['name'] as String, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700)),
+                    Text(c.name, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700)),
                     const SizedBox(width: 4),
-                    Text(c['unit'] as String, style: const TextStyle(fontSize: 11, color: AppColors.textMuted)),
+                    Text(c.unit, style: const TextStyle(fontSize: 11, color: AppColors.textMuted)),
                   ],
                 ),
                 trailing: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
-                    Text(c['price'] as String, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w800, color: AppColors.textPrimary)),
+                    Text(c.price, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w800, color: AppColors.textPrimary)),
                     Text(
-                      c['change'] as String,
-                      style: TextStyle(fontSize: 10, fontWeight: FontWeight.w600, color: isUp ? AppColors.success : AppColors.danger),
+                      c.change,
+                      style: TextStyle(fontSize: 10, fontWeight: FontWeight.w600, color: c.isUp ? AppColors.success : AppColors.danger),
                     ),
                   ],
                 ),
@@ -324,3 +314,4 @@ class _MarketScreenState extends State<MarketScreen> {
     );
   }
 }
+

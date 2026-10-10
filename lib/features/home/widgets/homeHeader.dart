@@ -1,18 +1,21 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/theme/appColors.dart';
 import '../../../core/widgets/smoothPageRoute.dart';
 import '../../notifications/screens/notificationScreen.dart';
+import '../../auth/providers/authProvider.dart';
 
-class HomeHeader extends StatelessWidget {
-  final String userName;
-
-  const HomeHeader({
-    super.key,
-    this.userName = 'Saugat Shahi',
-  });
+class HomeHeader extends ConsumerWidget {
+  const HomeHeader({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final authState = ref.watch(authProvider);
+    final rawName = authState.user.name;
+    final userName = rawName.isNotEmpty
+        ? rawName
+        : (authState.user.email.isNotEmpty ? authState.user.email.split('@').first : 'Farmer');
+
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
@@ -33,7 +36,7 @@ class HomeHeader extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const Text(
-                  'Good Evening,',
+                  'Welcome back,',
                   style: TextStyle(
                     fontSize: 12,
                     color: AppColors.textSecondary,
@@ -108,7 +111,14 @@ class HomeHeader extends StatelessWidget {
             CircleAvatar(
               radius: 20,
               backgroundColor: AppColors.primaryLight,
-              child: const Icon(Icons.face_rounded, color: AppColors.primary, size: 26),
+              child: Text(
+                userName.isNotEmpty ? userName[0].toUpperCase() : 'U',
+                style: const TextStyle(
+                  fontWeight: FontWeight.bold,
+                  color: AppColors.primary,
+                  fontSize: 18,
+                ),
+              ),
             ),
           ],
         ),

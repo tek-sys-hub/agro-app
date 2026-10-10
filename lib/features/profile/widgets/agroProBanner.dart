@@ -1,16 +1,23 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../auth/providers/authProvider.dart';
 
-class AgroProBanner extends StatelessWidget {
+class AgroProBanner extends ConsumerWidget {
   const AgroProBanner({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final authState = ref.watch(authProvider);
+    final isPro = authState.user.isPro;
+
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(16),
-        gradient: const LinearGradient(
-          colors: [Color(0xFF0F766E), Color(0xFF0D9488)],
+        gradient: LinearGradient(
+          colors: isPro
+              ? [const Color(0xFF0F766E), const Color(0xFF0D9488)]
+              : [const Color(0xFF1E293B), const Color(0xFF334155)],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
@@ -30,16 +37,28 @@ class AgroProBanner extends StatelessWidget {
               color: Colors.white24,
               shape: BoxShape.circle,
             ),
-            child: const Icon(Icons.workspace_premium_rounded, color: Colors.amber, size: 24),
+            child: Icon(
+              Icons.workspace_premium_rounded,
+              color: isPro ? Colors.amber : Colors.white70,
+              size: 24,
+            ),
           ),
           const SizedBox(width: 12),
-          const Expanded(
+          Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('AgroSmart Pro Plan', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w800, color: Colors.white)),
-                SizedBox(height: 2),
-                Text('Unlimited AI diagnosis, live alerts & sensor telemetry.', style: TextStyle(fontSize: 10, color: Colors.white70)),
+                Text(
+                  isPro ? 'AgroSmart Pro Active' : 'AgroSmart Free Plan',
+                  style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w800, color: Colors.white),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  isPro
+                      ? 'Unlimited AI diagnosis, live alerts & sensor telemetry enabled.'
+                      : 'Upgrade to unlock real-time IoT alerts & unlimited scans.',
+                  style: const TextStyle(fontSize: 10, color: Colors.white70),
+                ),
               ],
             ),
           ),
@@ -53,7 +72,10 @@ class AgroProBanner extends StatelessWidget {
               elevation: 0,
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
             ),
-            child: const Text('Upgrade', style: TextStyle(fontSize: 11, fontWeight: FontWeight.w800)),
+            child: Text(
+              isPro ? 'Manage' : 'Upgrade',
+              style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w800),
+            ),
           ),
         ],
       ),

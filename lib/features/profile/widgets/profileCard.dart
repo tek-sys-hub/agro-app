@@ -1,22 +1,21 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/theme/appColors.dart';
+import '../../auth/providers/authProvider.dart';
 
-class ProfileCard extends StatelessWidget {
-  final String name;
-  final String role;
-  final String location;
-  final String email;
-
-  const ProfileCard({
-    super.key,
-    this.name = 'Saugat Shahi',
-    this.role = 'Tomato Farmer',
-    this.location = 'Kathmandu, Nepal',
-    this.email = 'saugatshahi@example.com',
-  });
+class ProfileCard extends ConsumerWidget {
+  const ProfileCard({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final authState = ref.watch(authProvider);
+    final user = authState.user;
+
+    final name = user.name.isNotEmpty ? user.name : 'Verified Farmer';
+    final role = user.role.isNotEmpty ? user.role : 'Farmer';
+    final location = user.location.isNotEmpty ? user.location : 'Kathmandu, Nepal';
+    final email = user.email.isNotEmpty ? user.email : 'No email provided';
+
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -34,13 +33,20 @@ class ProfileCard extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Avatar with edit pencil
+          // Avatar
           Stack(
             children: [
               CircleAvatar(
                 radius: 34,
                 backgroundColor: AppColors.primaryLight,
-                child: const Icon(Icons.face_rounded, size: 44, color: AppColors.primary),
+                child: Text(
+                  name.isNotEmpty ? name[0].toUpperCase() : 'U',
+                  style: const TextStyle(
+                    fontSize: 28,
+                    fontWeight: FontWeight.bold,
+                    color: AppColors.primary,
+                  ),
+                ),
               ),
               Positioned(
                 bottom: 0,
@@ -70,9 +76,12 @@ class ProfileCard extends StatelessWidget {
               children: [
                 Row(
                   children: [
-                    Text(
-                      name,
-                      style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w800, color: AppColors.textPrimary),
+                    Flexible(
+                      child: Text(
+                        name,
+                        style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w800, color: AppColors.textPrimary),
+                        overflow: TextOverflow.ellipsis,
+                      ),
                     ),
                     const SizedBox(width: 4),
                     const Icon(Icons.check_circle_rounded, size: 16, color: AppColors.primary),
@@ -88,7 +97,13 @@ class ProfileCard extends StatelessWidget {
                   children: [
                     const Icon(Icons.location_on_outlined, size: 12, color: AppColors.textMuted),
                     const SizedBox(width: 4),
-                    Text(location, style: const TextStyle(fontSize: 10, color: AppColors.textSecondary)),
+                    Expanded(
+                      child: Text(
+                        location,
+                        style: const TextStyle(fontSize: 10, color: AppColors.textSecondary),
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
                   ],
                 ),
                 const SizedBox(height: 2),
@@ -96,7 +111,13 @@ class ProfileCard extends StatelessWidget {
                   children: [
                     const Icon(Icons.mail_outline_rounded, size: 12, color: AppColors.textMuted),
                     const SizedBox(width: 4),
-                    Text(email, style: const TextStyle(fontSize: 10, color: AppColors.textSecondary)),
+                    Expanded(
+                      child: Text(
+                        email,
+                        style: const TextStyle(fontSize: 10, color: AppColors.textSecondary),
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
                   ],
                 ),
               ],

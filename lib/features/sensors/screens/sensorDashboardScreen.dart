@@ -1,25 +1,23 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/theme/appColors.dart';
 import '../../../core/widgets/metricBadge.dart';
 import '../../../core/widgets/smoothPageRoute.dart';
 import '../../notifications/screens/notificationScreen.dart';
+import '../providers/sensorProvider.dart';
 import '../widgets/sensorMetricCard.dart';
 import '../widgets/deviceHeroCard.dart';
 import '../widgets/irrigationGaugeCard.dart';
 
-class SensorDashboardScreen extends StatefulWidget {
+class SensorDashboardScreen extends ConsumerWidget {
   const SensorDashboardScreen({super.key});
 
-  @override
-  State<SensorDashboardScreen> createState() => _SensorDashboardScreenState();
-}
-
-class _SensorDashboardScreenState extends State<SensorDashboardScreen> {
-  int _activeTab = 0;
-  final List<String> _tabs = ['Overview', 'Charts', 'Alerts (2)', 'Devices', 'Settings'];
+  static const List<String> _tabs = ['Overview', 'Charts', 'Alerts (2)', 'Devices', 'Settings'];
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final sensorState = ref.watch(sensorProvider);
+
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
@@ -61,12 +59,12 @@ class _SensorDashboardScreenState extends State<SensorDashboardScreen> {
             const SizedBox(height: 14),
 
             // Tab bar pills
-            _buildTabs(),
+            _buildTabs(ref, sensorState.activeTab),
 
             const SizedBox(height: 14),
 
             // 9 Sensor Metric Cards Grid
-            _buildSensorsGrid(),
+            _buildSensorsGrid(sensorState),
 
             const SizedBox(height: 16),
 
@@ -90,7 +88,7 @@ class _SensorDashboardScreenState extends State<SensorDashboardScreen> {
     );
   }
 
-  Widget _buildTabs() {
+  Widget _buildTabs(WidgetRef ref, int activeTab) {
     return SizedBox(
       height: 34,
       child: ListView.separated(
@@ -99,9 +97,9 @@ class _SensorDashboardScreenState extends State<SensorDashboardScreen> {
         itemCount: _tabs.length,
         separatorBuilder: (context, index) => const SizedBox(width: 8),
         itemBuilder: (context, index) {
-          final isSelected = _activeTab == index;
+          final isSelected = activeTab == index;
           return GestureDetector(
-            onTap: () => setState(() => _activeTab = index),
+            onTap: () => ref.read(sensorProvider.notifier).setTab(index),
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
               decoration: BoxDecoration(
@@ -124,12 +122,12 @@ class _SensorDashboardScreenState extends State<SensorDashboardScreen> {
     );
   }
 
-  Widget _buildSensorsGrid() {
+  Widget _buildSensorsGrid(SensorState state) {
     final metrics = [
-      {'title': 'Soil Moisture', 'val': '32%', 'badge': 'Optimal', 'btype': MetricBadgeType.primary, 'ideal': '30–60%', 'color': Colors.blue, 'icon': Icons.water_drop_outlined},
-      {'title': 'Soil pH', 'val': '6.4', 'badge': 'Optimal', 'btype': MetricBadgeType.success, 'ideal': '6.0–7.0', 'color': Colors.green, 'icon': Icons.eco_outlined},
-      {'title': 'Temperature', 'val': '26.8°C', 'badge': 'Optimal', 'btype': MetricBadgeType.warning, 'ideal': 'Air: 26.8°C | Soil: 24.1°C', 'color': Colors.orange, 'icon': Icons.thermostat_outlined},
-      {'title': 'Humidity', 'val': '68%', 'badge': 'Optimal', 'btype': MetricBadgeType.info, 'ideal': '40–70%', 'color': Colors.purple, 'icon': Icons.opacity_rounded},
+      {'title': 'Soil Moisture', 'val': '${state.soilMoisture.toInt()}%', 'badge': 'Optimal', 'btype': MetricBadgeType.primary, 'ideal': '30–60%', 'color': Colors.blue, 'icon': Icons.water_drop_outlined},
+      {'title': 'Soil pH', 'val': '${state.soilPh}', 'badge': 'Optimal', 'btype': MetricBadgeType.success, 'ideal': '6.0–7.0', 'color': Colors.green, 'icon': Icons.eco_outlined},
+      {'title': 'Temperature', 'val': '${state.temperature}°C', 'badge': 'Optimal', 'btype': MetricBadgeType.warning, 'ideal': 'Air: 26.8°C | Soil: 24.1°C', 'color': Colors.orange, 'icon': Icons.thermostat_outlined},
+      {'title': 'Humidity', 'val': '${state.humidity}%', 'badge': 'Optimal', 'btype': MetricBadgeType.info, 'ideal': '40–70%', 'color': Colors.purple, 'icon': Icons.opacity_rounded},
       {'title': 'Nitrogen (N)', 'val': '28 ppm', 'badge': 'Good', 'btype': MetricBadgeType.info, 'ideal': '20–40 ppm', 'color': Colors.blueAccent, 'icon': Icons.science_outlined},
       {'title': 'Phosphorus (P)', 'val': '18 ppm', 'badge': 'Low', 'btype': MetricBadgeType.danger, 'ideal': '20–40 ppm', 'color': Colors.deepPurple, 'icon': Icons.bubble_chart_outlined},
       {'title': 'Potassium (K)', 'val': '156 ppm', 'badge': 'Good', 'btype': MetricBadgeType.warning, 'ideal': '120–200 ppm', 'color': Colors.amber, 'icon': Icons.grain_outlined},
@@ -348,3 +346,4 @@ class _SensorDashboardScreenState extends State<SensorDashboardScreen> {
     );
   }
 }
+

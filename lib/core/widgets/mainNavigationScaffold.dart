@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../theme/appColors.dart';
+import '../providers/navigationProvider.dart';
 import '../../features/home/screens/homeScreen.dart';
 import '../../features/market/screens/marketScreen.dart';
 import '../../features/aiScan/screens/aiScanScreen.dart';
 import '../../features/b2bContracts/screens/b2bMarketplaceScreen.dart';
 import '../../features/profile/screens/profileScreen.dart';
 
-class MainNavigationScaffold extends StatefulWidget {
+class MainNavigationScaffold extends ConsumerWidget {
   final int initialIndex;
 
   const MainNavigationScaffold({
@@ -14,14 +16,7 @@ class MainNavigationScaffold extends StatefulWidget {
     this.initialIndex = 0,
   });
 
-  @override
-  State<MainNavigationScaffold> createState() => _MainNavigationScaffoldState();
-}
-
-class _MainNavigationScaffoldState extends State<MainNavigationScaffold> {
-  late int _currentIndex;
-
-  final List<Widget> _screens = const [
+  static const List<Widget> _screens = [
     HomeScreen(),
     MarketScreen(),
     AiScanScreen(),
@@ -30,20 +25,9 @@ class _MainNavigationScaffoldState extends State<MainNavigationScaffold> {
   ];
 
   @override
-  void initState() {
-    super.initState();
-    _currentIndex = widget.initialIndex;
-  }
+  Widget build(BuildContext context, WidgetRef ref) {
+    final currentIndex = ref.watch(navigationProvider);
 
-  void _onItemTapped(int index) {
-    if (_currentIndex == index) return;
-    setState(() {
-      _currentIndex = index;
-    });
-  }
-
-  @override
-  Widget build(BuildContext context) {
     return Scaffold(
       body: AnimatedSwitcher(
         duration: const Duration(milliseconds: 220),
@@ -53,8 +37,8 @@ class _MainNavigationScaffoldState extends State<MainNavigationScaffold> {
           return FadeTransition(opacity: animation, child: child);
         },
         child: KeyedSubtree(
-          key: ValueKey<int>(_currentIndex),
-          child: _screens[_currentIndex],
+          key: ValueKey<int>(currentIndex),
+          child: _screens[currentIndex],
         ),
       ),
       bottomNavigationBar: Container(
@@ -78,22 +62,30 @@ class _MainNavigationScaffoldState extends State<MainNavigationScaffold> {
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
                 _buildNavItem(
+                  ref: ref,
+                  currentIndex: currentIndex,
                   index: 0,
                   icon: Icons.home_rounded,
                   label: 'Home',
                 ),
                 _buildNavItem(
+                  ref: ref,
+                  currentIndex: currentIndex,
                   index: 1,
                   icon: Icons.bar_chart_rounded,
                   label: 'Market',
                 ),
-                _buildCenterScannerItem(),
+                _buildCenterScannerItem(ref: ref, currentIndex: currentIndex),
                 _buildNavItem(
+                  ref: ref,
+                  currentIndex: currentIndex,
                   index: 3,
                   icon: Icons.business_center_outlined,
                   label: 'B2B',
                 ),
                 _buildNavItem(
+                  ref: ref,
+                  currentIndex: currentIndex,
                   index: 4,
                   icon: Icons.person_outline_rounded,
                   label: 'Profile',
@@ -107,15 +99,17 @@ class _MainNavigationScaffoldState extends State<MainNavigationScaffold> {
   }
 
   Widget _buildNavItem({
+    required WidgetRef ref,
+    required int currentIndex,
     required int index,
     required IconData icon,
     required String label,
   }) {
-    final isSelected = _currentIndex == index;
+    final isSelected = currentIndex == index;
     final color = isSelected ? AppColors.primary : AppColors.textMuted;
 
     return InkWell(
-      onTap: () => _onItemTapped(index),
+      onTap: () => ref.read(navigationProvider.notifier).setTab(index),
       borderRadius: BorderRadius.circular(12),
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
@@ -146,10 +140,13 @@ class _MainNavigationScaffoldState extends State<MainNavigationScaffold> {
     );
   }
 
-  Widget _buildCenterScannerItem() {
-    final isSelected = _currentIndex == 2;
+  Widget _buildCenterScannerItem({
+    required WidgetRef ref,
+    required int currentIndex,
+  }) {
+    final isSelected = currentIndex == 2;
     return GestureDetector(
-      onTap: () => _onItemTapped(2),
+      onTap: () => ref.read(navigationProvider.notifier).setTab(2),
       child: AnimatedScale(
         scale: isSelected ? 1.06 : 1.0,
         duration: const Duration(milliseconds: 180),
@@ -191,3 +188,4 @@ class _MainNavigationScaffoldState extends State<MainNavigationScaffold> {
     );
   }
 }
+

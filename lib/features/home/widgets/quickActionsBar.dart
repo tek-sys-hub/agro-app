@@ -1,14 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/theme/appColors.dart';
 import '../../../core/widgets/smoothPageRoute.dart';
-import '../../aiScan/screens/aiScanScreen.dart';
+import '../../../core/providers/navigationProvider.dart';
 import '../../news/screens/newsScreen.dart';
 
-class QuickActionsBar extends StatelessWidget {
+class QuickActionsBar extends ConsumerWidget {
   const QuickActionsBar({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final actions = [
       {
         'title': 'Crop Guide',
@@ -23,20 +24,14 @@ class QuickActionsBar extends StatelessWidget {
         'title': 'Disease Scanner',
         'icon': Icons.shield_outlined,
         'action': () {
-          Navigator.of(context).push(
-            SmoothPageRoute(
-              page: const AiScanScreen(initialTabIndex: 0),
-            ),
-          );
+          ref.read(navigationProvider.notifier).goToAiScan();
         },
       },
       {
         'title': 'Market Insights',
         'icon': Icons.storefront_rounded,
         'action': () {
-          Navigator.of(context).push(
-            SmoothPageRoute(page: const NewsScreen()),
-          );
+          ref.read(navigationProvider.notifier).goToMarket();
         },
       },
       {
@@ -102,3 +97,4 @@ class QuickActionsBar extends StatelessWidget {
     );
   }
 }
+

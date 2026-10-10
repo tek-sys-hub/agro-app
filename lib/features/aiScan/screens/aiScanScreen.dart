@@ -1,42 +1,26 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/theme/appColors.dart';
 import '../../../core/widgets/metricBadge.dart';
 import '../../../core/widgets/smoothPageRoute.dart';
 import '../../notifications/screens/notificationScreen.dart';
+import '../providers/aiScanProvider.dart';
 import '../widgets/scanFrameOverlay.dart';
 import '../widgets/aiChatBubble.dart';
 import 'diseaseResultScreen.dart';
 
-class AiScanScreen extends StatefulWidget {
+class AiScanScreen extends ConsumerStatefulWidget {
   final int initialTabIndex;
 
   const AiScanScreen({super.key, this.initialTabIndex = 0});
 
   @override
-  State<AiScanScreen> createState() => _AiScanScreenState();
+  ConsumerState<AiScanScreen> createState() => _AiScanScreenState();
 }
 
-class _AiScanScreenState extends State<AiScanScreen> with SingleTickerProviderStateMixin {
+class _AiScanScreenState extends ConsumerState<AiScanScreen> with SingleTickerProviderStateMixin {
   late TabController _tabController;
   final TextEditingController _chatInputController = TextEditingController();
-
-  final List<Map<String, dynamic>> _messages = [
-    {
-      'isUser': false,
-      'text': "Hello Saugat! 👋\nI'm your Agro AI Assistant.\nHow can I help you with your farm today?",
-      'time': '10:30 AM',
-    },
-    {
-      'isUser': true,
-      'text': 'My tomato plants have yellow spots on the leaves. What could be the reason?',
-      'time': '10:32 AM',
-    },
-    {
-      'isUser': false,
-      'text': "Yellow spots on tomato leaves can be caused by several factors. Here are the most common reasons:\n\n• Early Blight: Yellow spots with dark centers.\n• Septoria Leaf Spot: Small circular spots with gray centers.\n• Nutrient Deficiency: Especially lack of magnesium or potassium.\n• Overwatering: Can cause yellowing and poor root health.\n\nI recommend checking the underside of the leaves and ensuring proper watering and nutrition. Would you like treatment suggestions?",
-      'time': '10:34 AM',
-    },
-  ];
 
   @override
   void initState() {
@@ -54,30 +38,14 @@ class _AiScanScreenState extends State<AiScanScreen> with SingleTickerProviderSt
   void _sendMessage([String? textToSend]) {
     final text = textToSend ?? _chatInputController.text.trim();
     if (text.isEmpty) return;
-    setState(() {
-      _messages.add({
-        'isUser': true,
-        'text': text,
-        'time': 'Just now',
-      });
-      _chatInputController.clear();
-    });
-
-    // Simulated quick AI response
-    Future.delayed(const Duration(milliseconds: 500), () {
-      if (!mounted) return;
-      setState(() {
-        _messages.add({
-          'isUser': false,
-          'text': "For $text, apply organic cold-pressed neem oil (2ml per liter of water) during early morning or evening. Also prune diseased lower leaves to improve air circulation.",
-          'time': 'Just now',
-        });
-      });
-    });
+    ref.read(aiScanProvider.notifier).sendMessage(text);
+    _chatInputController.clear();
   }
 
   @override
   Widget build(BuildContext context) {
+    final aiState = ref.watch(aiScanProvider);
+
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
@@ -169,7 +137,7 @@ class _AiScanScreenState extends State<AiScanScreen> with SingleTickerProviderSt
         physics: const BouncingScrollPhysics(),
         children: [
           _buildScanTab(context),
-          _buildChatTab(context),
+          _buildChatTab(context, aiState),
         ],
       ),
     );
@@ -245,8 +213,8 @@ class _AiScanScreenState extends State<AiScanScreen> with SingleTickerProviderSt
           // Recent Scans
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              const Text(
+            children: const [
+              Text(
                 'Recent Scans',
                 style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700, color: AppColors.textPrimary),
               ),
@@ -449,7 +417,7 @@ class _AiScanScreenState extends State<AiScanScreen> with SingleTickerProviderSt
   }
 
   // TAB 2: AGRO AI CHAT
-  Widget _buildChatTab(BuildContext context) {
+  Widget _buildChatTab(BuildContext context, AiScanState aiState) {
     return Column(
       children: [
         // Suggested questions chips
@@ -477,13 +445,13 @@ class _AiScanScreenState extends State<AiScanScreen> with SingleTickerProviderSt
           child: ListView.builder(
             physics: const BouncingScrollPhysics(),
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-            itemCount: _messages.length,
+            itemCount: aiState.chatMessages.length,
             itemBuilder: (context, index) {
-              final msg = _messages[index];
+              final msg = aiState.chatMessages[index];
               return AiChatBubble(
-                isUser: msg['isUser'] as bool,
-                text: msg['text'] as String,
-                time: msg['time'] as String,
+                isUser: msg.isUser,
+                text: msg.text,
+                time: 'Just now',
               );
             },
           ),
@@ -591,3 +559,4 @@ class _AiScanScreenState extends State<AiScanScreen> with SingleTickerProviderSt
     );
   }
 }
+
