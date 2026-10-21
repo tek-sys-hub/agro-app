@@ -1,6 +1,6 @@
 -- ========================================================
 -- AGROSMART SUPABASE DATABASE SCHEMA & UTILITIES
--- Run these queries in the Supabase SQL Editor (Dashboard > SQL Editor)
+-- Safe & Re-runnable (Idempotent) queries for Supabase SQL Editor
 -- ========================================================
 
 -- 1. Create 'profiles' table linked to Supabase Auth users
@@ -18,6 +18,11 @@ CREATE TABLE IF NOT EXISTS public.profiles (
 
 -- Enable Row Level Security (RLS) on profiles
 ALTER TABLE public.profiles ENABLE ROW LEVEL SECURITY;
+
+-- Drop existing policies if re-running query
+DROP POLICY IF EXISTS "Users can view their own profile" ON public.profiles;
+DROP POLICY IF EXISTS "Users can insert their own profile" ON public.profiles;
+DROP POLICY IF EXISTS "Users can update their own profile" ON public.profiles;
 
 -- RLS Policies for Profiles
 CREATE POLICY "Users can view their own profile"
@@ -50,6 +55,9 @@ CREATE TABLE IF NOT EXISTS public.sensor_readings (
 
 ALTER TABLE public.sensor_readings ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "Users can view their own sensor readings" ON public.sensor_readings;
+DROP POLICY IF EXISTS "Users can insert their own sensor readings" ON public.sensor_readings;
+
 CREATE POLICY "Users can view their own sensor readings"
 ON public.sensor_readings FOR SELECT
 USING (auth.uid() = user_id);
@@ -74,6 +82,8 @@ CREATE TABLE IF NOT EXISTS public.crop_market_prices (
 
 ALTER TABLE public.crop_market_prices ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "Public read access to market prices" ON public.crop_market_prices;
+
 -- Allow public read access to commodity prices
 CREATE POLICY "Public read access to market prices"
 ON public.crop_market_prices FOR SELECT
@@ -93,6 +103,9 @@ CREATE TABLE IF NOT EXISTS public.ai_scan_history (
 );
 
 ALTER TABLE public.ai_scan_history ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "Users can view their own scan history" ON public.ai_scan_history;
+DROP POLICY IF EXISTS "Users can insert their own scan history" ON public.ai_scan_history;
 
 CREATE POLICY "Users can view their own scan history"
 ON public.ai_scan_history FOR SELECT
