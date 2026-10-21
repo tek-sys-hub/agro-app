@@ -114,6 +114,37 @@ class SupabaseService {
     }
   }
 
+  // Query Notifications for User from 'notifications'
+  Future<List<Map<String, dynamic>>> fetchNotifications(String userId) async {
+    try {
+      final List<dynamic> response = await client
+          .from('notifications')
+          .select()
+          .eq('user_id', userId)
+          .order('created_at', ascending: false);
+      return List<Map<String, dynamic>>.from(response);
+    } catch (e) {
+      if (kDebugMode) {
+        print('Error fetching notifications: $e');
+      }
+      return [];
+    }
+  }
+
+  // Mark all notifications as read in 'notifications'
+  Future<void> markNotificationsAsRead(String userId) async {
+    try {
+      await client
+          .from('notifications')
+          .update({'is_read': true})
+          .eq('user_id', userId);
+    } catch (e) {
+      if (kDebugMode) {
+        print('Error marking notifications as read: $e');
+      }
+    }
+  }
+
   // Query Sensor Telemetry from 'sensor_readings'
   Future<Map<String, dynamic>?> fetchLatestSensorReading(String userId) async {
     try {

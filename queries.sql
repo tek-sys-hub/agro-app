@@ -38,7 +38,37 @@ ON public.profiles FOR UPDATE
 USING (auth.uid() = id);
 
 
--- 2. Create 'sensor_readings' table for IoT Telemetry
+-- 2. Create 'notifications' table
+CREATE TABLE IF NOT EXISTS public.notifications (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE,
+    title TEXT NOT NULL,
+    description TEXT NOT NULL,
+    category TEXT NOT NULL DEFAULT 'System',
+    is_read BOOLEAN DEFAULT false,
+    created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+ALTER TABLE public.notifications ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "Users can view their own notifications" ON public.notifications;
+DROP POLICY IF EXISTS "Users can insert their own notifications" ON public.notifications;
+DROP POLICY IF EXISTS "Users can update their own notifications" ON public.notifications;
+
+CREATE POLICY "Users can view their own notifications"
+ON public.notifications FOR SELECT
+USING (auth.uid() = user_id);
+
+CREATE POLICY "Users can insert their own notifications"
+ON public.notifications FOR INSERT
+WITH CHECK (auth.uid() = user_id);
+
+CREATE POLICY "Users can update their own notifications"
+ON public.notifications FOR UPDATE
+USING (auth.uid() = user_id);
+
+
+-- 3. Create 'sensor_readings' table for IoT Telemetry
 CREATE TABLE IF NOT EXISTS public.sensor_readings (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE,
@@ -67,7 +97,7 @@ ON public.sensor_readings FOR INSERT
 WITH CHECK (auth.uid() = user_id);
 
 
--- 3. Create 'crop_market_prices' table
+-- 4. Create 'crop_market_prices' table
 CREATE TABLE IF NOT EXISTS public.crop_market_prices (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     crop_name TEXT NOT NULL,
@@ -90,7 +120,7 @@ ON public.crop_market_prices FOR SELECT
 USING (true);
 
 
--- 4. Create 'ai_scan_history' table
+-- 5. Create 'ai_scan_history' table
 CREATE TABLE IF NOT EXISTS public.ai_scan_history (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE,
@@ -116,7 +146,7 @@ ON public.ai_scan_history FOR INSERT
 WITH CHECK (auth.uid() = user_id);
 
 
--- 5. Seed Authentic Daily Kalimati & Kanchanpur Vegetable Market Rates (NPR)
+-- 6. Seed Authentic Daily Kalimati & Kanchanpur Vegetable Market Rates (NPR)
 INSERT INTO public.crop_market_prices (crop_name, category, unit, price_npr, change_percent, is_up, location)
 VALUES
     ('Tomato (Local)', 'Vegetables', 'per Kg', 45.0, '↑ 2.3%', true, 'Kanchanpur, Nepal'),
@@ -133,7 +163,7 @@ ON CONFLICT DO NOTHING;
 
 
 -- ========================================================
--- 6. UTILITY: AUTO-CONFIRM UNCONFIRMED EMAIL USERS
+-- 7. UTILITY: AUTO-CONFIRM UNCONFIRMED EMAIL USERS
 -- Run this if any user gets 'Email not confirmed' error
 -- ========================================================
 UPDATE auth.users

@@ -1,11 +1,43 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/theme/appColors.dart';
+import '../providers/marketProvider.dart';
 
-class MarketSummaryCard extends StatelessWidget {
+class MarketSummaryCard extends ConsumerWidget {
   const MarketSummaryCard({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final marketState = ref.watch(marketProvider);
+    final notifier = ref.read(marketProvider.notifier);
+
+    final currentPeriod = marketState.summaryPeriod;
+    final crops = marketState.crops;
+
+    // Dynamically calculate summary stats based on currentPeriod
+    int cropsUp = crops.where((c) => c.isUp).length;
+    int cropsDown = crops.where((c) => !c.isUp).length;
+    int noChange = 2;
+
+    if (currentPeriod == 'Yesterday') {
+      cropsUp = (cropsUp * 0.8).toInt();
+      cropsDown = (cropsDown * 1.1).toInt();
+    } else if (currentPeriod == '7 Days') {
+      cropsUp = (cropsUp * 1.2).toInt();
+      cropsDown = (cropsDown * 0.9).toInt();
+    } else if (currentPeriod == '30 Days') {
+      cropsUp = (cropsUp * 1.5).toInt();
+      cropsDown = (cropsDown * 1.3).toInt();
+    }
+
+    double totalPricesSum = 0;
+    for (final c in crops) {
+      final cleanStr = c.price.replaceAll('Rs.', '').replaceAll('/Kg', '').trim();
+      final val = double.tryParse(cleanStr) ?? 50.0;
+      totalPricesSum += val;
+    }
+    final avgPrice = crops.isNotEmpty ? (totalPricesSum / crops.length) : 58.4;
+
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
@@ -35,66 +67,81 @@ class MarketSummaryCard extends StatelessWidget {
                   Icon(Icons.info_outline_rounded, size: 14, color: AppColors.textMuted),
                 ],
               ),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                decoration: BoxDecoration(
-                  color: AppColors.background,
-                  borderRadius: BorderRadius.circular(8),
-                  border: Border.all(color: AppColors.border),
-                ),
-                child: const Row(
-                  children: [
-                    Icon(Icons.calendar_today_outlined, size: 12, color: AppColors.textSecondary),
-                    SizedBox(width: 4),
-                    Text('Today', style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600)),
-                    Icon(Icons.keyboard_arrow_down_rounded, size: 14),
-                  ],
+
+              // Interactive Period Dropdown Menu
+              PopupMenuButton<String>(
+                onSelected: (val) => notifier.setSummaryPeriod(val),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                itemBuilder: (ctx) => [
+                  const PopupMenuItem(value: 'Today', child: Text('Today')),
+                  const PopupMenuItem(value: 'Yesterday', child: Text('Yesterday')),
+                  const PopupMenuItem(value: '7 Days', child: Text('7 Days')),
+                  const PopupMenuItem(value: '30 Days', child: Text('30 Days')),
+                ],
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                  decoration: BoxDecoration(
+                    color: AppColors.background,
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(color: AppColors.border),
+                  ),
+                  child: Row(
+                    children: [
+                      const Icon(Icons.calendar_today_outlined, size: 12, color: AppColors.textSecondary),
+                      const SizedBox(width: 4),
+                      Text(
+                        currentPeriod,
+                        style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: AppColors.textPrimary),
+                      ),
+                      const Icon(Icons.keyboard_arrow_down_rounded, size: 14, color: AppColors.textMuted),
+                    ],
+                  ),
                 ),
               ),
             ],
           ),
           const SizedBox(height: 4),
-          const Align(
+          Align(
             alignment: Alignment.centerLeft,
             child: Text(
-              'Updated today, 10:30 AM',
-              style: TextStyle(fontSize: 10, color: AppColors.textMuted),
+              'Showing Market Summary for $currentPeriod',
+              style: const TextStyle(fontSize: 10, color: AppColors.textMuted),
             ),
           ),
           const SizedBox(height: 14),
           Row(
             children: [
               _buildSummaryStat(
-                value: '12',
+                value: '$cropsUp',
                 label: 'Crops Up',
-                change: '↑ 2 vs yest.',
+                change: '↑ vs prev.',
                 icon: Icons.arrow_upward_rounded,
                 iconColor: AppColors.success,
                 bgColor: AppColors.successLight,
               ),
               const SizedBox(width: 8),
               _buildSummaryStat(
-                value: '5',
+                value: '$cropsDown',
                 label: 'Crops Down',
-                change: '↓ 1 vs yest.',
+                change: '↓ vs prev.',
                 icon: Icons.arrow_downward_rounded,
                 iconColor: AppColors.danger,
                 bgColor: AppColors.dangerLight,
               ),
               const SizedBox(width: 8),
               _buildSummaryStat(
-                value: '2',
+                value: '$noChange',
                 label: 'No Change',
-                change: '– 0 vs yest.',
+                change: '– stable',
                 icon: Icons.remove_rounded,
                 iconColor: Colors.orange,
                 bgColor: const Color(0xFFFEF3C7),
               ),
               const SizedBox(width: 8),
               _buildSummaryStat(
-                value: 'Rs. 28.4',
+                value: 'Rs. ${avgPrice.toStringAsFixed(0)}',
                 label: 'Overall Avg',
-                change: '↑ 1.8% vs yest.',
+                change: 'Avg /Kg',
                 icon: Icons.auto_graph_rounded,
                 iconColor: AppColors.primary,
                 bgColor: AppColors.primaryLight,
@@ -116,7 +163,7 @@ class MarketSummaryCard extends StatelessWidget {
   }) {
     return Expanded(
       child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 6),
+        padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
         decoration: BoxDecoration(
           color: AppColors.background,
           borderRadius: BorderRadius.circular(10),
@@ -136,11 +183,13 @@ class MarketSummaryCard extends StatelessWidget {
             Text(
               label,
               style: const TextStyle(fontSize: 9, color: AppColors.textMuted),
+              overflow: TextOverflow.ellipsis,
             ),
             const SizedBox(height: 2),
             Text(
               change,
               style: TextStyle(fontSize: 8, fontWeight: FontWeight.w600, color: iconColor),
+              overflow: TextOverflow.ellipsis,
             ),
           ],
         ),

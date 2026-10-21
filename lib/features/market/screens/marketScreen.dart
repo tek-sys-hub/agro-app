@@ -8,7 +8,7 @@ import '../widgets/marketSummaryCard.dart';
 class MarketScreen extends ConsumerWidget {
   const MarketScreen({super.key});
 
-  static const List<String> _categories = ['Overview', 'Crops', 'Trends', 'Markets'];
+  static const List<String> _categories = ['Overview', 'Vegetables', 'Crops & Grains', 'Fruits', 'Spices'];
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -77,11 +77,13 @@ class MarketScreen extends ConsumerWidget {
                           if (index == 0)
                             Icon(Icons.trending_up_rounded, size: 16, color: isSelected ? Colors.white : AppColors.textSecondary)
                           else if (index == 1)
-                            Icon(Icons.grass_rounded, size: 16, color: isSelected ? Colors.white : AppColors.textSecondary)
+                            Icon(Icons.eco_rounded, size: 16, color: isSelected ? Colors.white : AppColors.textSecondary)
                           else if (index == 2)
-                            Icon(Icons.bar_chart_rounded, size: 16, color: isSelected ? Colors.white : AppColors.textSecondary)
+                            Icon(Icons.grass_rounded, size: 16, color: isSelected ? Colors.white : AppColors.textSecondary)
+                          else if (index == 3)
+                            Icon(Icons.apple_rounded, size: 16, color: isSelected ? Colors.white : AppColors.textSecondary)
                           else
-                            Icon(Icons.storefront_rounded, size: 16, color: isSelected ? Colors.white : AppColors.textSecondary),
+                            Icon(Icons.spa_rounded, size: 16, color: isSelected ? Colors.white : AppColors.textSecondary),
                           const SizedBox(width: 6),
                           Text(
                             _categories[index],
@@ -106,8 +108,8 @@ class MarketScreen extends ConsumerWidget {
 
             const SizedBox(height: 16),
 
-            // Price Trend Card (with chart)
-            _buildPriceTrendCard(),
+            // Price Trend Card (with interactive chart & date range selection)
+            _buildPriceTrendCard(ref, marketState),
 
             const SizedBox(height: 20),
 
@@ -126,9 +128,24 @@ class MarketScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildPriceTrendCard() {
-    final trendPoints = [24.6, 25.1, 26.2, 26.8, 27.1, 27.8, 28.4];
-    final dates = ['26 Apr', '27 Apr', '28 Apr', '29 Apr', '30 Apr', '1 May', '2 May'];
+  Widget _buildPriceTrendCard(WidgetRef ref, MarketState state) {
+    final notifier = ref.read(marketProvider.notifier);
+    final range = state.trendRange;
+
+    List<double> trendPoints = [42.0, 44.5, 45.0, 48.2, 50.0, 52.5, 54.0];
+    List<String> dates = ['15 Oct', '16 Oct', '17 Oct', '18 Oct', '19 Oct', '20 Oct', 'Today'];
+
+    if (range == '14 Days') {
+      trendPoints = [38.0, 40.0, 41.5, 42.0, 43.5, 44.5, 45.0, 46.5, 48.0, 49.5, 50.0, 51.5, 52.5, 54.0];
+      dates = ['8 Oct', '10 Oct', '12 Oct', '14 Oct', '16 Oct', '18 Oct', 'Today'];
+    } else if (range == '30 Days') {
+      trendPoints = [32.0, 35.0, 38.0, 40.0, 42.0, 45.0, 48.0, 52.0, 54.0];
+      dates = ['21 Sep', '26 Sep', '1 Oct', '6 Oct', '11 Oct', '16 Oct', 'Today'];
+    }
+
+    final double minVal = trendPoints.reduce((a, b) => a < b ? a : b);
+    final double maxVal = trendPoints.reduce((a, b) => a > b ? a : b);
+    final double avgVal = trendPoints.reduce((a, b) => a + b) / trendPoints.length;
 
     return Container(
       padding: const EdgeInsets.all(14),
@@ -146,37 +163,48 @@ class MarketScreen extends ConsumerWidget {
               const Row(
                 children: [
                   Text(
-                    'Price Trend (Average Price)',
+                    'Price Trend Graph',
                     style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: AppColors.textPrimary),
                   ),
                   SizedBox(width: 4),
                   Icon(Icons.info_outline_rounded, size: 14, color: AppColors.textMuted),
                 ],
               ),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                decoration: BoxDecoration(
-                  color: AppColors.background,
-                  borderRadius: BorderRadius.circular(8),
-                  border: Border.all(color: AppColors.border),
-                ),
-                child: const Row(
-                  children: [
-                    Text('7 Days', style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600)),
-                    Icon(Icons.keyboard_arrow_down_rounded, size: 14),
-                  ],
+
+              // Interactive Range Selection Popup
+              PopupMenuButton<String>(
+                onSelected: (val) => notifier.setTrendRange(val),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                itemBuilder: (ctx) => [
+                  const PopupMenuItem(value: '7 Days', child: Text('7 Days')),
+                  const PopupMenuItem(value: '14 Days', child: Text('14 Days')),
+                  const PopupMenuItem(value: '30 Days', child: Text('30 Days')),
+                ],
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: AppColors.background,
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(color: AppColors.border),
+                  ),
+                  child: Row(
+                    children: [
+                      Text(range, style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: AppColors.textPrimary)),
+                      const Icon(Icons.keyboard_arrow_down_rounded, size: 14, color: AppColors.textMuted),
+                    ],
+                  ),
                 ),
               ),
             ],
           ),
           const SizedBox(height: 16),
 
-          // Custom Painted Trend Chart
+          // Custom Painted Interactive Trend Chart with Fill Shader
           SizedBox(
-            height: 100,
+            height: 110,
             child: CustomPaint(
-              size: const Size(double.infinity, 100),
-              painter: SparklinePainter(points: trendPoints),
+              size: const Size(double.infinity, 110),
+              painter: SparklinePainter(points: trendPoints, selectedIndex: trendPoints.length - 1),
             ),
           ),
           const SizedBox(height: 6),
@@ -193,9 +221,9 @@ class MarketScreen extends ConsumerWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              _buildTrendSummaryItem('Lowest Price', 'Rs. 18.7 /Kg', '(Potato)', Icons.arrow_downward_rounded, AppColors.success),
-              _buildTrendSummaryItem('Highest Price', 'Rs. 64.0 /Kg', '(Rice)', Icons.arrow_upward_rounded, AppColors.danger),
-              _buildTrendSummaryItem('Price Change', '↑ 1.8%', 'vs last 7 days', Icons.show_chart_rounded, AppColors.primary),
+              _buildTrendSummaryItem('Period Min', 'Rs. ${minVal.toStringAsFixed(0)} /Kg', '(Radish)', Icons.arrow_downward_rounded, AppColors.success),
+              _buildTrendSummaryItem('Period Max', 'Rs. ${maxVal.toStringAsFixed(0)} /Kg', '(Garlic)', Icons.arrow_upward_rounded, AppColors.danger),
+              _buildTrendSummaryItem('Period Avg', 'Rs. ${avgVal.toStringAsFixed(0)} /Kg', 'vs $range', Icons.show_chart_rounded, AppColors.primary),
             ],
           ),
         ],
@@ -224,7 +252,7 @@ class MarketScreen extends ConsumerWidget {
             Row(
               children: [
                 Text(
-                  'Top Crops by Price',
+                  'Nepali Market Rates (NPR)',
                   style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: AppColors.textPrimary),
                 ),
                 SizedBox(width: 4),
@@ -233,52 +261,72 @@ class MarketScreen extends ConsumerWidget {
             ),
             Row(
               children: [
-                Text('Sort by: Price (High to Low)', style: TextStyle(fontSize: 11, color: AppColors.textSecondary)),
+                Text('Wholesale Rates', style: TextStyle(fontSize: 11, color: AppColors.textSecondary)),
                 Icon(Icons.keyboard_arrow_down_rounded, size: 14),
               ],
             ),
           ],
         ),
         const SizedBox(height: 10),
-        Material(
-          color: Colors.white,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
-            side: const BorderSide(color: AppColors.border),
+        if (crops.isEmpty)
+          Container(
+            padding: const EdgeInsets.all(20),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(color: AppColors.border),
+            ),
+            child: const Center(
+              child: Text('No commodities found for this category.', style: TextStyle(color: AppColors.textMuted, fontSize: 12)),
+            ),
+          )
+        else
+          Material(
+            color: Colors.white,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16),
+              side: const BorderSide(color: AppColors.border),
+            ),
+            clipBehavior: Clip.antiAlias,
+            child: ListView.separated(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              itemCount: crops.length,
+              separatorBuilder: (context, index) => const Divider(height: 1, color: AppColors.borderSubtle),
+              itemBuilder: (context, index) {
+                final c = crops[index];
+                return ListTile(
+                  leading: Text(c.icon, style: const TextStyle(fontSize: 24)),
+                  title: Row(
+                    children: [
+                      Flexible(
+                        child: Text(
+                          c.name,
+                          style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700),
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                      const SizedBox(width: 4),
+                      Text(c.unit, style: const TextStyle(fontSize: 11, color: AppColors.textMuted)),
+                    ],
+                  ),
+                  subtitle: Text(c.category, style: const TextStyle(fontSize: 10, color: AppColors.textMuted)),
+                  trailing: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      Text(c.price, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w800, color: AppColors.textPrimary)),
+                      Text(
+                        c.change,
+                        style: TextStyle(fontSize: 10, fontWeight: FontWeight.w600, color: c.isUp ? AppColors.success : AppColors.danger),
+                      ),
+                    ],
+                  ),
+                  onTap: () {},
+                );
+              },
+            ),
           ),
-          clipBehavior: Clip.antiAlias,
-          child: ListView.separated(
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            itemCount: crops.length,
-            separatorBuilder: (context, index) => const Divider(height: 1, color: AppColors.borderSubtle),
-            itemBuilder: (context, index) {
-              final c = crops[index];
-              return ListTile(
-                leading: Text(c.icon, style: const TextStyle(fontSize: 24)),
-                title: Row(
-                  children: [
-                    Text(c.name, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700)),
-                    const SizedBox(width: 4),
-                    Text(c.unit, style: const TextStyle(fontSize: 11, color: AppColors.textMuted)),
-                  ],
-                ),
-                trailing: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.end,
-                  children: [
-                    Text(c.price, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w800, color: AppColors.textPrimary)),
-                    Text(
-                      c.change,
-                      style: TextStyle(fontSize: 10, fontWeight: FontWeight.w600, color: c.isUp ? AppColors.success : AppColors.danger),
-                    ),
-                  ],
-                ),
-                onTap: () {},
-              );
-            },
-          ),
-        ),
       ],
     );
   }
@@ -299,14 +347,14 @@ class MarketScreen extends ConsumerWidget {
               Icon(Icons.insights_rounded, size: 18, color: AppColors.primary),
               SizedBox(width: 8),
               Text(
-                'Market Intelligence',
+                'Kanchanpur Market Intelligence',
                 style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: AppColors.textPrimary),
               ),
             ],
           ),
           const SizedBox(height: 10),
           const Text(
-            'Vegetable prices in Kalimati market show a slight upward trend this week due to transport disruption caused by early monsoon rains. High demand for organic tomatoes continues.',
+            'Vegetable prices in Kanchanpur wholesale markets show stable rates for red potatoes and tomatoes. High demand for local garlic and ginger continues across Far-Western markets.',
             style: TextStyle(fontSize: 12, color: AppColors.textSecondary, height: 1.4),
           ),
         ],
@@ -314,4 +362,3 @@ class MarketScreen extends ConsumerWidget {
     );
   }
 }
-

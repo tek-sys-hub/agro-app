@@ -54,7 +54,7 @@ class WeatherSummaryCard extends ConsumerWidget {
                   );
                 },
                 child: Container(
-                  padding: const EdgeInsets.all(14),
+                  padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
                     color: Colors.white,
                     borderRadius: BorderRadius.circular(16),
@@ -75,7 +75,7 @@ class WeatherSummaryCard extends ConsumerWidget {
                         children: [
                           const Text(
                             'Live Weather',
-                            style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: AppColors.textPrimary),
+                            style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: AppColors.textPrimary),
                           ),
                           if (weatherState.isLoading)
                             const SizedBox(
@@ -97,7 +97,7 @@ class WeatherSummaryCard extends ConsumerWidget {
                           const SizedBox(width: 2),
                           Expanded(
                             child: Text(
-                              weather?.locationName ?? 'Kathmandu, Nepal',
+                              weather?.locationName ?? 'Kanchanpur, Nepal',
                               style: const TextStyle(fontSize: 10, color: AppColors.textSecondary),
                               overflow: TextOverflow.ellipsis,
                             ),
@@ -112,18 +112,19 @@ class WeatherSummaryCard extends ConsumerWidget {
                             Icon(
                               _getWeatherIcon(weather.weatherCode),
                               color: _getWeatherIconColor(weather.weatherCode),
-                              size: 36,
+                              size: 32,
                             ),
                             Column(
                               crossAxisAlignment: CrossAxisAlignment.end,
                               children: [
                                 Text(
                                   '${weather.temperature.toStringAsFixed(1)}°C',
-                                  style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: AppColors.textPrimary),
+                                  style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w800, color: AppColors.textPrimary),
                                 ),
                                 Text(
                                   weather.conditionText,
-                                  style: const TextStyle(fontSize: 10, color: AppColors.textMuted),
+                                  style: const TextStyle(fontSize: 9, color: AppColors.textMuted),
+                                  overflow: TextOverflow.ellipsis,
                                 ),
                               ],
                             ),
@@ -142,26 +143,26 @@ class WeatherSummaryCard extends ConsumerWidget {
                         children: [
                           Row(
                             children: [
-                              const Icon(Icons.water_drop_outlined, size: 12, color: Colors.blue),
+                              const Icon(Icons.water_drop_outlined, size: 11, color: Colors.blue),
                               const SizedBox(width: 2),
                               Text(
                                 '${weather?.humidity ?? 65}%',
-                                style: const TextStyle(fontSize: 10, color: AppColors.textSecondary),
+                                style: const TextStyle(fontSize: 9, color: AppColors.textSecondary),
                               ),
                             ],
                           ),
                           Row(
                             children: [
-                              const Icon(Icons.air_rounded, size: 12, color: Colors.blueGrey),
+                              const Icon(Icons.air_rounded, size: 11, color: Colors.blueGrey),
                               const SizedBox(width: 2),
                               Text(
-                                '${weather?.windSpeed.toStringAsFixed(1) ?? "8.0"} km/h',
-                                style: const TextStyle(fontSize: 10, color: AppColors.textSecondary),
+                                '${weather?.windSpeed.toStringAsFixed(0) ?? "8"} km/h',
+                                style: const TextStyle(fontSize: 9, color: AppColors.textSecondary),
                               ),
                             ],
                           ),
                           Text(
-                            'Rain: ${weather?.rainProbability ?? 20}%',
+                            'Rain:${weather?.rainProbability ?? 20}%',
                             style: const TextStyle(fontSize: 9, color: AppColors.textSecondary, fontWeight: FontWeight.w600),
                           ),
                         ],
@@ -171,7 +172,7 @@ class WeatherSummaryCard extends ConsumerWidget {
                 ),
               ),
             ),
-            const SizedBox(width: 12),
+            const SizedBox(width: 10),
 
             // Field Sensors Card
             Expanded(
@@ -183,7 +184,7 @@ class WeatherSummaryCard extends ConsumerWidget {
                   );
                 },
                 child: Container(
-                  padding: const EdgeInsets.all(14),
+                  padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
                     color: Colors.white,
                     borderRadius: BorderRadius.circular(16),
@@ -204,39 +205,43 @@ class WeatherSummaryCard extends ConsumerWidget {
                         children: const [
                           Text(
                             'Field Telemetry',
-                            style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: AppColors.textPrimary),
+                            style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: AppColors.textPrimary),
                           ),
                           Text(
                             'View All',
-                            style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: AppColors.primary),
+                            style: TextStyle(fontSize: 10, fontWeight: FontWeight.w600, color: AppColors.primary),
                           ),
                         ],
                       ),
                       const SizedBox(height: 12),
                       Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceAround,
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                         children: [
-                          Column(
-                            children: [
-                              const Icon(Icons.water_drop_rounded, size: 18, color: Colors.blue),
-                              const SizedBox(height: 2),
-                              Text(
-                                '${sensorState.soilMoisture.toInt()}%',
-                                style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w700),
-                              ),
-                              const Text('Moisture', style: TextStyle(fontSize: 9, color: AppColors.textMuted)),
-                            ],
+                          Expanded(
+                            child: Column(
+                              children: [
+                                const Icon(Icons.water_drop_rounded, size: 16, color: Colors.blue),
+                                const SizedBox(height: 2),
+                                Text(
+                                  '${sensorState.soilMoisture.toInt()}%',
+                                  style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700),
+                                ),
+                                const Text('Moisture', style: TextStyle(fontSize: 8, color: AppColors.textMuted)),
+                              ],
+                            ),
                           ),
-                          Column(
-                            children: [
-                              const Icon(Icons.thermostat_rounded, size: 18, color: Colors.orange),
-                              const SizedBox(height: 2),
-                              Text(
-                                '${sensorState.temperature}°C',
-                                style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w700),
-                              ),
-                              const MetricBadge(text: 'Optimal', type: MetricBadgeType.success),
-                            ],
+                          Expanded(
+                            child: Column(
+                              children: [
+                                const Icon(Icons.thermostat_rounded, size: 16, color: Colors.orange),
+                                const SizedBox(height: 2),
+                                Text(
+                                  '${sensorState.temperature}°C',
+                                  style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700),
+                                ),
+                                const MetricBadge(text: 'Optimal', type: MetricBadgeType.success),
+                              ],
+                            ),
                           ),
                         ],
                       ),
@@ -246,11 +251,11 @@ class WeatherSummaryCard extends ConsumerWidget {
                       const Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Icon(Icons.sensors_rounded, size: 13, color: AppColors.primary),
+                          Icon(Icons.sensors_rounded, size: 12, color: AppColors.primary),
                           SizedBox(width: 4),
                           Text(
                             'Sensors Connected',
-                            style: TextStyle(fontSize: 10, color: AppColors.primary, fontWeight: FontWeight.w600),
+                            style: TextStyle(fontSize: 9, color: AppColors.primary, fontWeight: FontWeight.w600),
                           ),
                         ],
                       ),
