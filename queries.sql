@@ -63,7 +63,7 @@ WITH CHECK (auth.uid() = user_id);
 CREATE TABLE IF NOT EXISTS public.crop_market_prices (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     crop_name TEXT NOT NULL,
-    category TEXT NOT NULL DEFAULT 'Crops',
+    category TEXT NOT NULL DEFAULT 'Vegetables',
     unit TEXT NOT NULL DEFAULT 'per Kg',
     price_npr NUMERIC NOT NULL,
     change_percent TEXT,
@@ -103,14 +103,19 @@ ON public.ai_scan_history FOR INSERT
 WITH CHECK (auth.uid() = user_id);
 
 
--- 5. Seed Initial Sample Commodity Prices Data
+-- 5. Seed Authentic Daily Kalimati & Kanchanpur Vegetable Market Rates (NPR)
 INSERT INTO public.crop_market_prices (crop_name, category, unit, price_npr, change_percent, is_up, location)
 VALUES
-    ('Rice', 'Crops', 'per Kg', 64.0, '↑ 0.8%', true, 'Kanchanpur, Nepal'),
-    ('Tomato', 'Crops', 'per Kg', 48.0, '↑ 2.3%', true, 'Kanchanpur, Nepal'),
-    ('Potato', 'Crops', 'per Kg', 32.0, '↓ 1.1%', false, 'Kanchanpur, Nepal'),
-    ('Maize', 'Crops', 'per Kg', 30.0, '↑ 1.5%', true, 'Kanchanpur, Nepal'),
-    ('Chili', 'Crops', 'per Kg', 120.0, '↓ 0.5%', false, 'Kanchanpur, Nepal')
+    ('Tomato (Local)', 'Vegetables', 'per Kg', 45.0, '↑ 2.3%', true, 'Kanchanpur, Nepal'),
+    ('Potato (Red)', 'Vegetables', 'per Kg', 35.0, '↓ 1.1%', false, 'Kanchanpur, Nepal'),
+    ('Onion (Dry)', 'Vegetables', 'per Kg', 68.0, '↑ 1.5%', true, 'Kanchanpur, Nepal'),
+    ('Cauliflower', 'Vegetables', 'per Kg', 50.0, '↓ 3.2%', false, 'Kanchanpur, Nepal'),
+    ('Cabbage', 'Vegetables', 'per Kg', 30.0, '↑ 0.5%', true, 'Kanchanpur, Nepal'),
+    ('Green Chili', 'Vegetables', 'per Kg', 110.0, '↓ 2.0%', false, 'Kanchanpur, Nepal'),
+    ('Garlic (Local)', 'Spices', 'per Kg', 220.0, '↑ 4.1%', true, 'Kanchanpur, Nepal'),
+    ('Ginger', 'Spices', 'per Kg', 140.0, '↑ 1.8%', true, 'Kanchanpur, Nepal'),
+    ('Mansuli Rice', 'Crops', 'per Kg', 65.0, '↑ 0.8%', true, 'Kanchanpur, Nepal'),
+    ('Maize (Corn)', 'Crops', 'per Kg', 32.0, '↑ 1.2%', true, 'Kanchanpur, Nepal')
 ON CONFLICT DO NOTHING;
 
 

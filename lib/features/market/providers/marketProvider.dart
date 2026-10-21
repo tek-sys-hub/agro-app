@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/services/supabaseService.dart';
+import '../../../core/services/nepaliMarketService.dart';
 
 class CropModel {
   final String name;
@@ -22,12 +23,18 @@ class CropModel {
 
   factory CropModel.fromMap(Map<String, dynamic> map) {
     final name = map['crop_name'] as String? ?? 'Crop';
-    String emoji = '🌱';
-    if (name.toLowerCase().contains('rice')) emoji = '🍚';
-    if (name.toLowerCase().contains('tomato')) emoji = '🍅';
-    if (name.toLowerCase().contains('potato')) emoji = '🥔';
-    if (name.toLowerCase().contains('maize')) emoji = '🌽';
-    if (name.toLowerCase().contains('chili')) emoji = '🌶️';
+    final lowerName = name.toLowerCase();
+
+    String emoji = '🥬';
+    if (lowerName.contains('tomato') || lowerName.contains('गोलभेडा')) emoji = '🍅';
+    if (lowerName.contains('potato') || lowerName.contains('आलु')) emoji = '🥔';
+    if (lowerName.contains('onion') || lowerName.contains('प्याउ')) emoji = '🧅';
+    if (lowerName.contains('rice') || lowerName.contains('धान')) emoji = '🍚';
+    if (lowerName.contains('maize') || lowerName.contains('मकै')) emoji = '🌽';
+    if (lowerName.contains('chili') || lowerName.contains('खुर्सानी')) emoji = '🌶️';
+    if (lowerName.contains('garlic') || lowerName.contains('लसुन')) emoji = '🧄';
+    if (lowerName.contains('ginger') || lowerName.contains('अदुवा')) emoji = '🫚';
+    if (lowerName.contains('cauliflower') || lowerName.contains('काउली')) emoji = '🥦';
 
     final priceVal = map['price_npr'];
     final unitVal = map['unit'] as String? ?? 'per Kg';
@@ -39,7 +46,19 @@ class CropModel {
       change: map['change_percent'] as String? ?? '0%',
       isUp: map['is_up'] as bool? ?? true,
       icon: emoji,
-      category: map['category'] as String? ?? 'Crops',
+      category: map['category'] as String? ?? 'Vegetables',
+    );
+  }
+
+  factory CropModel.fromNepaliCropPrice(NepaliCropPrice p) {
+    return CropModel(
+      name: p.cropName,
+      unit: '(${p.unit})',
+      price: 'Rs. ${p.priceNpr.toStringAsFixed(0)} /Kg',
+      change: p.changePercent,
+      isUp: p.isUp,
+      icon: p.icon,
+      category: p.category,
     );
   }
 }
@@ -74,6 +93,7 @@ class MarketState {
 
 class MarketNotifier extends StateNotifier<MarketState> {
   final SupabaseService _supabaseService = SupabaseService.instance;
+  final NepaliMarketService _nepaliMarketService = NepaliMarketService.instance;
 
   MarketNotifier()
       : super(
@@ -90,11 +110,15 @@ class MarketNotifier extends StateNotifier<MarketState> {
   Future<void> loadMarketPrices() async {
     state = state.copyWith(isLoading: true);
     final data = await _supabaseService.fetchMarketPrices();
+
     if (data.isNotEmpty) {
       final loadedCrops = data.map((map) => CropModel.fromMap(map)).toList();
       state = state.copyWith(crops: loadedCrops, isLoading: false);
     } else {
-      state = state.copyWith(isLoading: false);
+      // Load authentic daily Kalimati & Kanchanpur wholesale market rates
+      final nepaliPrices = await _nepaliMarketService.fetchLiveKalimatiPrices();
+      final loadedCrops = nepaliPrices.map((p) => CropModel.fromNepaliCropPrice(p)).toList();
+      state = state.copyWith(crops: loadedCrops, isLoading: false);
     }
   }
 
